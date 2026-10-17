@@ -22,9 +22,6 @@ function ArtistsPage() {
 
   return (
     <PageShell title="Artistit">
-      <p className="mb-5 text-muted-foreground">
-        Kaikki artisteiksi lisätyt nimet. Täsmälleen samat nimet yhdistetään samaksi artistiksi. Kilpailumäärä lasketaan eri kilpailuvuosien perusteella.
-      </p>
       {data.length === 0 ? (
         <p className="text-muted-foreground">Yhtään artistia ei ole vielä lisätty kilpailuihin.</p>
       ) : (
