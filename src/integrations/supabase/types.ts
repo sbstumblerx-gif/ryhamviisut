@@ -76,7 +76,7 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
-    ? keyof DatabaseWithoutInternals[DefaultSchema["Tables"] & DefaultSchema["Views"]]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] & keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"]
     : never = never,
 > = DefaultSchemaWithoutInternals extends never ? never : never
 export const Constants = { public: { Enums: { section_type: ["artistijulkistus", "esittely", "karsinta", "finaali"] } } } as const
