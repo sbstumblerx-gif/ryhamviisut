@@ -1,18 +1,152 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageShell, ComingSoon } from "@/components/PageShell";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { ExternalLink, ListMusic, Play, Youtube } from "lucide-react";
+import { PageShell } from "@/components/PageShell";
+import { Button } from "@/components/ui/button";
+import { ArtistLink } from "@/components/ArtistLink";
+import { supabase } from "@/integrations/supabase/client";
+import { useAdmin, youtubeEmbed } from "@/lib/admin";
+import { playMusicTrack } from "@/components/MusicPlayer";
 
 export const Route = createFileRoute("/musiikki")({
   head: () => ({
     meta: [
       { title: "Musiikki – Ryhämviisut" },
-      { name: "description", content: "Ryhämviisut: Musiikki" },
+      { name: "description", content: "Kuuntele Ryhämviisujen kappaleita ja musiikkivideoita." },
       { property: "og:title", content: "Musiikki – Ryhämviisut" },
-      { property: "og:description", content: "Ryhämviisut: Musiikki" },
+      { property: "og:description", content: "Kuuntele Ryhämviisujen kappaleita ja musiikkivideoita." },
     ],
   }),
-  component: () => (
-    <PageShell title="Musiikki">
-      <ComingSoon />
-    </PageShell>
-  ),
+  component: MusicPage,
 });
+
+type MusicEntry = {
+  id: string;
+  artist: string;
+  song: string | null;
+  video_url: string | null;
+  created_at: string;
+  section_id: string;
+  section: { type: string; competitions: { year: number } | null } | null;
+};
+
+function MusicPage() {
+  const admin = useAdmin();
+  const [filter, setFilter] = useState("");
+  const { data: songs, isLoading, error } = useQuery({
+    queryKey: ["music-library"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("entries")
+        .select("id, artist, song, video_url, created_at, section_id, sections(type, competitions(year))");
+      if (error) throw error;
+      return ((data ?? []) as unknown as MusicEntry[])
+        .filter((entry) => entry.song?.trim())
+        .sort((a, b) => {
+          const yearDiff = (b.section?.competitions?.year ?? 0) - (a.section?.competitions?.year ?? 0);
+          return yearDiff || b.created_at.localeCompare(a.created_at);
+        });
+    },
+  });
+
+  const filtered = (songs ?? []).filter((entry) =>
+    `${entry.artist} ${entry.song ?? ""} ${entry.section?.competitions?.year ?? ""}`.toLocaleLowerCase("fi-FI").includes(filter.toLocaleLowerCase("fi-FI")),
+  );
+
+  return (
+    <PageShell title="Musiikki">
+      <div className="mb-6 rounded-xl border bg-card p-4">
+        <div className="flex items-center gap-2 font-semibold"><ListMusic className="h-5 w-5 text-accent" /> Ryhämviisujen musiikkikirjasto</div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Jokainen kappale ilmestyy tänne automaattisesti, kun se lisätään kilpailun osioon. Lisää kappaleelle YouTube-musiikkivideon linkki, niin voit käynnistää sen sivun omassa soittimessa ja jatkaa selaamista musiikin soidessa.
+        </p>
+      </div>
+
+      <input
+        aria-label="Hae kappaleita"
+        className="mb-5 w-full rounded-md border bg-background px-3 py-2 text-sm"
+        placeholder="Hae artistia tai kappaletta…"
+        value={filter}
+        onChange={(event) => setFilter(event.target.value)}
+      />
+
+      {isLoading && <p className="text-muted-foreground">Ladataan kappaleita…</p>}
+      {error && <p className="text-destructive">Kappaleiden lataaminen epäonnistui. Yritä päivittää sivu.</p>}
+      {!isLoading && !error && filtered.length === 0 && (
+        <p className="rounded-xl border p-6 text-muted-foreground">
+          {songs?.length ? "Haulla ei löytynyt kappaleita." : "Musiikkikirjastossa ei ole vielä kappaleita."}
+        </p>
+      )}
+
+      <ul className="space-y-3">
+        {filtered.map((entry) => {
+          const embed = youtubeEmbed(entry.video_url);
+          return (
+            <li key={entry.id} className="rounded-xl border bg-card p-4">
+              <div className="flex flex-wrap items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold text-foreground">{entry.song}</div>
+                  <div className="text-sm text-muted-foreground"><ArtistLink name={entry.artist} className="text-primary hover:underline" /></div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    {entry.section?.competitions?.year ?? "Vuosi tuntematon"} · {entry.section?.type ?? ""}
+                  </div>
+                </div>
+                {embed ? (
+                  <Button onClick={() => playMusicTrack({ title: entry.song ?? "Tuntematon kappale", artist: entry.artist, url: entry.video_url! })}>
+                    <Play className="mr-2 h-4 w-4" /> Toista sivusoittimessa
+                  </Button>
+                ) : (
+                  <span className="rounded-md bg-secondary px-3 py-2 text-sm text-muted-foreground">Ei vielä musiikkivideota</span>
+                )}
+                {entry.video_url && (
+                  <a href={entry.video_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md border px-3 py-2 text-sm hover:bg-accent">
+                    <Youtube className="h-4 w-4" /> YouTube <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+              {admin.isAdmin && (
+                <MusicVideoEditor entry={entry} />
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </PageShell>
+  );
+}
+
+function MusicVideoEditor({ entry }: { entry: MusicEntry }) {
+  const admin = useAdmin();
+  const [url, setUrl] = useState(entry.video_url ?? "");
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  return (
+    <form
+      className="mt-4 flex flex-wrap gap-2 border-t pt-3"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        setSaving(true);
+        setMessage("");
+        try {
+          await admin.run({ type: "updateEntry", id: entry.id, video_url: url.trim() || null });
+          setMessage("Linkki tallennettu.");
+        } catch (error) {
+          setMessage(error instanceof Error ? error.message : "Tallennus epäonnistui.");
+        } finally {
+          setSaving(false);
+        }
+      }}
+    >
+      <input
+        aria-label={`YouTube-linkki kappaleelle ${entry.song ?? entry.artist}`}
+        className="min-w-0 flex-1 rounded-md border bg-background px-3 py-2 text-sm"
+        placeholder="YouTube-musiikkivideon linkki"
+        value={url}
+        onChange={(event) => setUrl(event.target.value)}
+      />
+      <Button type="submit" disabled={saving}>{saving ? "Tallennetaan…" : "Tallenna linkki"}</Button>
+      {message && <p className="w-full text-sm text-muted-foreground">{message}</p>}
+    </form>
+  );
+}
