@@ -1,24 +1,48 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Settings, Trophy, BarChart3, Mic2, Music, Vote, UserPlus } from "lucide-react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Ryhmäviisut" },
+      { name: "description", content: "Ryhmäviisujen kilpailut, tulokset, artistit ja musiikki." },
+      { property: "og:title", content: "Ryhmäviisut" },
+      { property: "og:description", content: "Ryhmäviisujen kilpailut, tulokset, artistit ja musiikki." },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+const items = [
+  { to: "/kilpailut", label: "Kilpailut", icon: Trophy },
+  { to: "/tilastot", label: "Tilastot", icon: BarChart3 },
+  { to: "/artistit", label: "Artistit", icon: Mic2 },
+  { to: "/musiikki", label: "Musiikki", icon: Music },
+  { to: "/aanesta", label: "Äänestä", icon: Vote },
+  { to: "/osallistu", label: "Osallistu", icon: UserPlus },
+] as const;
+
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="mx-auto flex min-h-screen max-w-4xl flex-col px-4 py-8">
+      <div className="flex justify-end">
+        <Link to="/asetukset" aria-label="Asetukset" className="text-muted-foreground hover:text-accent">
+          <Settings className="h-6 w-6" />
+        </Link>
+      </div>
+      <div className="flex flex-1 flex-col justify-center">
+        <h1 className="text-center text-7xl text-foreground md:text-9xl">
+          Ryhmä<span className="text-primary">viisut</span>
+        </h1>
+        <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3">
+          {items.map(({ to, label, icon: Icon }) => (
+            <Link key={to} to={to} className="tile flex flex-col items-center gap-3 p-8">
+              <Icon className="h-8 w-8 text-primary" />
+              <span className="font-display text-3xl tracking-wide">{label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
