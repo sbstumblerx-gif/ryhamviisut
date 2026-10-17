@@ -3,6 +3,7 @@ import { z } from "zod";
 
 const sectionType = z.enum(["artistijulkistus", "esittely", "karsinta", "finaali"]);
 const id = z.string().uuid();
+const youtubeUrl = z.string().trim().max(500).nullable();
 
 const action = z.discriminatedUnion("type", [
   z.object({ type: z.literal("verify") }),
@@ -16,12 +17,14 @@ const action = z.discriminatedUnion("type", [
     section_id: id,
     artist: z.string().trim().min(1).max(200),
     song: z.string().trim().max(200).nullable(),
+    video_url: youtubeUrl.optional(),
   }),
   z.object({
     type: z.literal("updateEntry"),
     id,
     artist: z.string().trim().min(1).max(200).optional(),
     song: z.string().trim().max(200).nullable().optional(),
+    video_url: youtubeUrl.optional(),
     audience_points: z.number().int().min(0).max(100000).optional(),
     status: z.enum(["eteni", "karsiutui"]).nullable().optional(),
   }),
@@ -67,12 +70,13 @@ export const adminAction = createServerFn({ method: "POST" })
         check(await db.from("sections").update({ video_url: a.video_url || null }).eq("id", a.id));
         break;
       case "addEntry":
-        check(await db.from("entries").insert({ section_id: a.section_id, artist: a.artist, song: a.song || null }));
+        check(await db.from("entries").insert({ section_id: a.section_id, artist: a.artist, song: a.song || null, video_url: a.video_url || null }));
         break;
       case "updateEntry": {
-        const patch: { artist?: string; song?: string | null; audience_points?: number; status?: string | null } = {};
+        const patch: { artist?: string; song?: string | null; video_url?: string | null; audience_points?: number; status?: string | null } = {};
         if (a.artist !== undefined) patch.artist = a.artist;
         if (a.song !== undefined) patch.song = a.song;
+        if (a.video_url !== undefined) patch.video_url = a.video_url;
         if (a.audience_points !== undefined) patch.audience_points = a.audience_points;
         if (a.status !== undefined) patch.status = a.status;
         check(await db.from("entries").update(patch).eq("id", a.id));
