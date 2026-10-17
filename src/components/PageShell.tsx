@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Settings } from "lucide-react";
+import { Settings, LogIn } from "lucide-react";
 
 export function PageShell({ title, children, back = "/" }: { title: string; children: ReactNode; back?: string }) {
   return (
@@ -9,9 +9,14 @@ export function PageShell({ title, children, back = "/" }: { title: string; chil
         <Link to={back} className="text-sm text-muted-foreground hover:text-accent">
           ← Takaisin
         </Link>
-        <Link to="/asetukset" aria-label="Asetukset" className="text-muted-foreground hover:text-accent">
-          <Settings className="h-5 w-5" />
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/kirjaudu" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent">
+            <LogIn className="h-4 w-4" /> Kirjaudu
+          </Link>
+          <Link to="/asetukset" aria-label="Asetukset" className="text-muted-foreground hover:text-accent">
+            <Settings className="h-5 w-5" />
+          </Link>
+        </div>
       </header>
       <h1 className="mb-6 text-5xl text-accent">{title}</h1>
       {children}
