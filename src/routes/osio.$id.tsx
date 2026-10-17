@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAdmin, youtubeEmbed } from "@/lib/admin";
 import { SECTION_LABEL, sectionQuery } from "@/lib/queries";
+import { ArtistLink } from "@/components/ArtistLink";
 
 export const Route = createFileRoute("/osio/$id")({
   head: () => ({
@@ -87,7 +88,7 @@ function EntryRow({ entry, withSong, scored, admin }: { entry: Entry; withSong: 
   return (
     <li className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-3">
       <div className="flex-1">
-        <div className="font-semibold">{entry.artist}</div>
+        <div className="font-semibold"><ArtistLink name={entry.artist} className="text-primary hover:underline" /></div>
         {withSong && entry.song && <div className="text-sm text-muted-foreground">{entry.song}</div>}
       </div>
       {scored && (
@@ -191,7 +192,7 @@ function JuryEditor({ jury, entries, admin }: { jury: Jury; entries: Entry[]; ad
         {rows.map((r, i) => (
           <li key={r.entry.id} className="flex items-center gap-2">
             <span className="w-6 text-right text-muted-foreground">{i + 1}.</span>
-            <span className="flex-1">{r.entry.artist}</span>
+            <span className="flex-1"><ArtistLink name={r.entry.artist} className="text-primary hover:underline" /></span>
             <button aria-label="Ylös" onClick={() => move(i, -1)} className="text-muted-foreground hover:text-accent"><ArrowUp className="h-4 w-4" /></button>
             <button aria-label="Alas" onClick={() => move(i, 1)} className="text-muted-foreground hover:text-accent"><ArrowDown className="h-4 w-4" /></button>
             <Input
@@ -248,7 +249,7 @@ function Results({ section, entries }: { section: Section; entries: Entry[] }) {
               <tr key={e.id} className="border-t">
                 <td className="p-3 text-muted-foreground">{i + 1}</td>
                 <td className="p-3">
-                  <div className="font-semibold">{e.artist}</div>
+                  <div className="font-semibold"><ArtistLink name={e.artist} className="text-primary hover:underline" /></div>
                   {e.song && <div className="text-muted-foreground">{e.song}</div>}
                 </td>
                 <td className="p-3 text-right">{e.audience_points}</td>
