@@ -80,7 +80,7 @@ export const artistDetailQuery = (artistSlug: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sections")
-        .select("id, type, competitions(year), entries(id, artist, song, audience_points, status, created_at), juries(*, jury_votes(*))");
+        .select("id, type, competitions(id, year), entries(id, artist, song, video_url, audience_points, status, created_at), juries(*, jury_votes(*))");
       if (error) throw error;
 
       const artistKey = (name: string) => name.trim().toLocaleLowerCase("fi-FI");
@@ -93,6 +93,8 @@ export const artistDetailQuery = (artistSlug: string) =>
             year: section.competitions?.year ?? null,
             sectionType: section.type,
             sectionId: section.id,
+            competitionId: section.competitions?.id ?? null,
+            sectionEntries: section.entries ?? [],
             juries: section.juries ?? [],
           })),
       );
