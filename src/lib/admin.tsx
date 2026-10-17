@@ -27,7 +27,7 @@ export function useAdmin() {
 
   const run = useCallback(
     async (action: AdminActionInput) => {
-      if (!code) return;
+      if (!code) throw new Error("Kirjaudu ensin ylläpitäjänä.");
       const result = await adminAction({ data: { code, action } });
       await qc.invalidateQueries();
       return result;
@@ -39,7 +39,29 @@ export function useAdmin() {
 }
 
 export function youtubeEmbed(url: string | null | undefined) {
-  if (!url) return null;
-  const m = url.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/);
-  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+  if (!url?.trim()) return null;
+
+  try {
+    const parsed = new URL(url.trim());
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return null;
+
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+    const isShortDomain = host === "youtu.be";
+    const isYoutubeDomain = host === "youtube.com" || host.endsWith(".youtube.com");
+    if (!isShortDomain && !isYoutubeDomain) return null;
+
+    let id: string | null = null;
+    if (isShortDomain) {
+      id = parsed.pathname.split("/").filter(Boolean)[0] ?? null;
+    } else if (parsed.pathname === "/watch") {
+      id = parsed.searchParams.get("v");
+    } else {
+      const match = parsed.pathname.match(/^\/(?:embed|shorts|live)\/([\w-]{11})(?:\/|$)/);
+      id = match?.[1] ?? null;
+    }
+
+    return id && /^[\w-]{11}$/.test(id) ? `https://www.youtube.com/embed/${id}` : null;
+  } catch {
+    return null;
+  }
 }
