@@ -40,16 +40,14 @@ function SectionPage() {
 
   return (
     <PageShell title={`${SECTION_LABEL[s.type]} ${year ?? ""}`} back={year ? `/kilpailut/${year}` : "/kilpailut"}>
-      {!scored && (
-        <section className="mb-8 space-y-4">
-          {embed && (
-            <div className="aspect-video overflow-hidden rounded-xl border">
-              <iframe src={embed} className="h-full w-full" allowFullScreen title="Video" />
-            </div>
-          )}
-          {admin.isAdmin && <VideoEditor sectionId={s.id} current={s.video_url} admin={admin} />}
-        </section>
-      )}
+      <section className="mb-8 space-y-4">
+        {embed && (
+          <div className="aspect-video overflow-hidden rounded-xl border">
+            <iframe src={embed} className="h-full w-full" allowFullScreen title="Video" />
+          </div>
+        )}
+        {admin.isAdmin && <VideoEditor sectionId={s.id} current={s.video_url} admin={admin} />}
+      </section>
 
       <section className="mb-10">
         <h2 className="mb-3 text-3xl">{scored ? "Kilpailijat" : "Artistit"}</h2>
@@ -62,8 +60,8 @@ function SectionPage() {
         {admin.isAdmin && <AddEntry sectionId={s.id} withSong={withSong} admin={admin} />}
       </section>
 
-      {scored && <Juries section={s} entries={entries} admin={admin} />}
       {scored && <Results section={s} entries={entries} />}
+      {scored && <Juries section={s} entries={entries} admin={admin} />}
     </PageShell>
   );
 }
