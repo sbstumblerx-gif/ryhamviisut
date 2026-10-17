@@ -78,7 +78,7 @@ function VideoEditor({ sectionId, current, admin }: { sectionId: string; current
   );
 }
 
-type Entry = { id: string; artist: string; song: string | null; audience_points: number; status: string | null };
+type Entry = { id: string; artist: string; song: string | null; video_url?: string | null; audience_points: number; status: string | null };
 
 function EntryRow({ entry, withSong, scored, admin }: { entry: Entry; withSong: boolean; scored: boolean; admin: Admin }) {
   const [pts, setPts] = useState(String(entry.audience_points));
@@ -117,16 +117,18 @@ function EntryRow({ entry, withSong, scored, admin }: { entry: Entry; withSong: 
 function AddEntry({ sectionId, withSong, admin }: { sectionId: string; withSong: boolean; admin: Admin }) {
   const [artist, setArtist] = useState("");
   const [song, setSong] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
   return (
     <form
       className="mt-3 flex flex-wrap gap-2"
       onSubmit={(e) => {
         e.preventDefault();
-        admin.run({ type: "addEntry", section_id: sectionId, artist, song: song || null }).then(() => { setArtist(""); setSong(""); }, fail);
+        admin.run({ type: "addEntry", section_id: sectionId, artist, song: song || null, video_url: videoUrl || null }).then(() => { setArtist(""); setSong(""); setVideoUrl(""); }, fail);
       }}
     >
       <Input placeholder="Artisti" value={artist} onChange={(e) => setArtist(e.target.value)} className="max-w-56" />
       {withSong && <Input placeholder="Kappale" value={song} onChange={(e) => setSong(e.target.value)} className="max-w-56" />}
+      {withSong && <Input placeholder="YouTube-musiikkivideon linkki" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} className="min-w-56 flex-1" />}
       <Button type="submit" disabled={!artist.trim()}>Lisää</Button>
     </form>
   );
