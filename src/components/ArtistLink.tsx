@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 export function artistKey(name: string) {
-  return name.trim().toLocaleLowerCase("fi-FI");
+  return name.trim().toLocaleLowerCase("fi-FI").replace(/\\s+/g, "-");
 }
 
 export function ArtistLink({ name, className }: { name: string; className?: string }) {
