@@ -12,10 +12,10 @@ import { competitionsQuery } from "@/lib/queries";
 export const Route = createFileRoute("/kilpailut/")({
   head: () => ({
     meta: [
-      { title: "Kilpailut – Ryhmäviisut" },
-      { name: "description", content: "Kaikki Ryhmäviisujen kilpailuvuodet." },
-      { property: "og:title", content: "Kilpailut – Ryhmäviisut" },
-      { property: "og:description", content: "Kaikki Ryhmäviisujen kilpailuvuodet." },
+      { title: "Kilpailut – Ryhämviisut" },
+      { name: "description", content: "Kaikki Ryhämviisujen kilpailuvuodet." },
+      { property: "og:title", content: "Kilpailut – Ryhämviisut" },
+      { property: "og:description", content: "Kaikki Ryhämviisujen kilpailuvuodet." },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(competitionsQuery),
