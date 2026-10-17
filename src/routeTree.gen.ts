@@ -10,33 +10,91 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AanestaRouteImport } from './routes/aanesta'
+import { Route as ArtistitRouteImport } from './routes/artistit'
+import { Route as MusiikkiRouteImport } from './routes/musiikki'
+import { Route as OsallistuRouteImport } from './routes/osallistu'
+import { Route as TilastotRouteImport } from './routes/tilastot'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AanestaRoute = AanestaRouteImport.update({
+  id: '/aanesta',
+  path: '/aanesta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArtistitRoute = ArtistitRouteImport.update({
+  id: '/artistit',
+  path: '/artistit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MusiikkiRoute = MusiikkiRouteImport.update({
+  id: '/musiikki',
+  path: '/musiikki',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OsallistuRoute = OsallistuRouteImport.update({
+  id: '/osallistu',
+  path: '/osallistu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TilastotRoute = TilastotRouteImport.update({
+  id: '/tilastot',
+  path: '/tilastot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aanesta': typeof AanestaRoute
+  '/artistit': typeof ArtistitRoute
+  '/musiikki': typeof MusiikkiRoute
+  '/osallistu': typeof OsallistuRoute
+  '/tilastot': typeof TilastotRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aanesta': typeof AanestaRoute
+  '/artistit': typeof ArtistitRoute
+  '/musiikki': typeof MusiikkiRoute
+  '/osallistu': typeof OsallistuRoute
+  '/tilastot': typeof TilastotRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aanesta': typeof AanestaRoute
+  '/artistit': typeof ArtistitRoute
+  '/musiikki': typeof MusiikkiRoute
+  '/osallistu': typeof OsallistuRoute
+  '/tilastot': typeof TilastotRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/aanesta' | '/artistit' | '/musiikki' | '/osallistu' | '/tilastot'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/aanesta' | '/artistit' | '/musiikki' | '/osallistu' | '/tilastot'
+  id:
+    | '__root__'
+    | '/'
+    | '/aanesta'
+    | '/artistit'
+    | '/musiikki'
+    | '/osallistu'
+    | '/tilastot'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AanestaRoute: typeof AanestaRoute
+  ArtistitRoute: typeof ArtistitRoute
+  MusiikkiRoute: typeof MusiikkiRoute
+  OsallistuRoute: typeof OsallistuRoute
+  TilastotRoute: typeof TilastotRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +106,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aanesta': {
+      id: '/aanesta'
+      path: '/aanesta'
+      fullPath: '/aanesta'
+      preLoaderRoute: typeof AanestaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/artistit': {
+      id: '/artistit'
+      path: '/artistit'
+      fullPath: '/artistit'
+      preLoaderRoute: typeof ArtistitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/musiikki': {
+      id: '/musiikki'
+      path: '/musiikki'
+      fullPath: '/musiikki'
+      preLoaderRoute: typeof MusiikkiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/osallistu': {
+      id: '/osallistu'
+      path: '/osallistu'
+      fullPath: '/osallistu'
+      preLoaderRoute: typeof OsallistuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tilastot': {
+      id: '/tilastot'
+      path: '/tilastot'
+      fullPath: '/tilastot'
+      preLoaderRoute: typeof TilastotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AanestaRoute: AanestaRoute,
+  ArtistitRoute: ArtistitRoute,
+  MusiikkiRoute: MusiikkiRoute,
+  OsallistuRoute: OsallistuRoute,
+  TilastotRoute: TilastotRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
