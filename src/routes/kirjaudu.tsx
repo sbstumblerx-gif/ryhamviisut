@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { CheckCircle2, Chrome, LogIn, Mail, ShieldCheck, Apple, MessageCircle } from "lucide-react";
+import { CheckCircle2, Chrome, LogIn, ShieldCheck, Apple, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
