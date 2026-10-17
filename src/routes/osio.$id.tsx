@@ -118,18 +118,66 @@ function AddEntry({ sectionId, withSong, admin }: { sectionId: string; withSong:
   const [artist, setArtist] = useState("");
   const [song, setSong] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const canSubmit = artist.trim() && (!withSong || (song.trim() && youtubeEmbed(videoUrl.trim())));
+
   return (
     <form
       className="mt-3 flex flex-wrap gap-2"
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
-        admin.run({ type: "addEntry", section_id: sectionId, artist, song: song || null, video_url: videoUrl || null }).then(() => { setArtist(""); setSong(""); setVideoUrl(""); }, fail);
+        if (!artist.trim()) return;
+        if (withSong && !song.trim()) {
+          toast.error("Lisää kappaleen nimi.");
+          return;
+        }
+        if (withSong && !youtubeEmbed(videoUrl.trim())) {
+          toast.error("Lisää kelvollinen YouTube-musiikkivideon linkki.");
+          return;
+        }
+
+        setSaving(true);
+        try {
+          await admin.run({
+            type: "addEntry",
+            section_id: sectionId,
+            artist: artist.trim(),
+            song: withSong ? song.trim() : null,
+            video_url: withSong ? videoUrl.trim() : null,
+          });
+          toast.success("Kappale lisätty. Se löytyy automaattisesti Musiikki-sivulta.");
+          setArtist("");
+          setSong("");
+          setVideoUrl("");
+        } catch (error) {
+          fail(error instanceof Error ? error : new Error("Kappaleen lisääminen epäonnistui."));
+        } finally {
+          setSaving(false);
+        }
       }}
     >
-      <Input placeholder="Artisti" value={artist} onChange={(e) => setArtist(e.target.value)} className="max-w-56" />
-      {withSong && <Input placeholder="Kappale" value={song} onChange={(e) => setSong(e.target.value)} className="max-w-56" />}
-      {withSong && <Input placeholder="YouTube-musiikkivideon linkki" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} className="min-w-56 flex-1" />}
-      <Button type="submit" disabled={!artist.trim()}>Lisää</Button>
+      <Input placeholder="Artisti" value={artist} onChange={(e) => setArtist(e.target.value)} className="max-w-56" required />
+      {withSong && (
+        <Input
+          placeholder="Kappale"
+          value={song}
+          onChange={(e) => setSong(e.target.value)}
+          className="max-w-56"
+          required
+        />
+      )}
+      {withSong && (
+        <Input
+          placeholder="YouTube-musiikkivideon linkki"
+          value={videoUrl}
+          onChange={(e) => setVideoUrl(e.target.value)}
+          className="min-w-56 flex-1"
+          type="url"
+          required
+        />
+      )}
+      <Button type="submit" disabled={saving || !canSubmit}>{saving ? "Lisätään…" : "Lisää"}</Button>
     </form>
   );
 }
