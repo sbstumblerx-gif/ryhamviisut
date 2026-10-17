@@ -81,14 +81,11 @@ export const artistDetailQuery = (artistSlug: string) =>
         .select("id, type, competitions(year), entries(id, artist, song, audience_points, status, created_at), juries(*, jury_votes(*))");
       if (error) throw error;
 
-      const slugify = (name: string) =>
-        name.trim().toLocaleLowerCase("fi-FI")
-          .normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
-          .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const artistKey = (name: string) => name.trim().toLocaleLowerCase("fi-FI");
 
       const appearances = (data ?? []).flatMap((section) =>
         (section.entries ?? [])
-          .filter((entry) => entry.artist?.trim() && slugify(entry.artist) === artistSlug)
+          .filter((entry) => entry.artist?.trim() && artistKey(entry.artist) === artistSlug)
           .map((entry) => ({
             ...entry,
             year: section.competitions?.year ?? null,
