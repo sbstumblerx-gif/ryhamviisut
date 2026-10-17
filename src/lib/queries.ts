@@ -83,7 +83,7 @@ export const artistDetailQuery = (artistSlug: string) =>
         .select("id, type, competitions(id, year), entries(id, artist, song, video_url, audience_points, status, created_at), juries(*, jury_votes(*))");
       if (error) throw error;
 
-      const artistKey = (name: string) => name.trim().toLocaleLowerCase("fi-FI");
+      const artistKey = (name: string) => name.trim().toLocaleLowerCase("fi-FI").replace(/\\s+/g, "-");
 
       const appearances = (data ?? []).flatMap((section) =>
         (section.entries ?? [])
