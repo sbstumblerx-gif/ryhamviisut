@@ -9,10 +9,10 @@ import { useAdmin } from "@/lib/admin";
 export const Route = createFileRoute("/asetukset")({
   head: () => ({
     meta: [
-      { title: "Asetukset – Ryhmäviisut" },
-      { name: "description", content: "Ryhmäviisujen asetukset." },
-      { property: "og:title", content: "Asetukset – Ryhmäviisut" },
-      { property: "og:description", content: "Ryhmäviisujen asetukset." },
+      { title: "Asetukset – Ryhämviisut" },
+      { name: "description", content: "Ryhämviisujen asetukset." },
+      { property: "og:title", content: "Asetukset – Ryhämviisut" },
+      { property: "og:description", content: "Ryhämviisujen asetukset." },
     ],
   }),
   component: Settings,
