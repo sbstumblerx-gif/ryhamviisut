@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell } from "@/components/PageShell";
-import { SECTION_LABEL } from "@/lib/queries";
-import { artistDetailQuery } from "@/lib/queries";
+import { SECTION_LABEL, artistDetailQuery } from "@/lib/queries";
 
 export const Route = createFileRoute("/artistit/$artist")({
   head: ({ params }) => ({
