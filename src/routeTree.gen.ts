@@ -18,6 +18,7 @@ import { Route as OsallistuRouteImport } from './routes/osallistu'
 import { Route as TilastotRouteImport } from './routes/tilastot'
 import { Route as KilpailutIndexRouteImport } from './routes/kilpailut.index'
 import { Route as KilpailutYearRouteImport } from './routes/kilpailut.$year'
+import { Route as OsioIdRouteImport } from './routes/osio.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,11 @@ const KilpailutYearRoute = KilpailutYearRouteImport.update({
   path: '/kilpailut/$year',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OsioIdRoute = OsioIdRouteImport.update({
+  id: '/osio/$id',
+  path: '/osio/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
+  '/osio/$id': typeof OsioIdRoute
   '/kilpailut/': typeof KilpailutIndexRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
+  '/osio/$id': typeof OsioIdRoute
   '/kilpailut': typeof KilpailutIndexRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
+  '/osio/$id': typeof OsioIdRoute
   '/kilpailut/': typeof KilpailutIndexRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/osallistu'
     | '/tilastot'
     | '/kilpailut/$year'
+    | '/osio/$id'
     | '/kilpailut/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/osallistu'
     | '/tilastot'
     | '/kilpailut/$year'
+    | '/osio/$id'
     | '/kilpailut'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/osallistu'
     | '/tilastot'
     | '/kilpailut/$year'
+    | '/osio/$id'
     | '/kilpailut/'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   OsallistuRoute: typeof OsallistuRoute
   TilastotRoute: typeof TilastotRoute
   KilpailutYearRoute: typeof KilpailutYearRoute
+  OsioIdRoute: typeof OsioIdRoute
   KilpailutIndexRoute: typeof KilpailutIndexRoute
 }
 
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KilpailutYearRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/osio/$id': {
+      id: '/osio/$id'
+      path: '/osio/$id'
+      fullPath: '/osio/$id'
+      preLoaderRoute: typeof OsioIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -224,6 +244,7 @@ const rootRouteChildren: RootRouteChildren = {
   OsallistuRoute: OsallistuRoute,
   TilastotRoute: TilastotRoute,
   KilpailutYearRoute: KilpailutYearRoute,
+  OsioIdRoute: OsioIdRoute,
   KilpailutIndexRoute: KilpailutIndexRoute,
 }
 export const routeTree = rootRouteImport
