@@ -7,6 +7,13 @@ const youtubeUrl = z.string().trim().max(500).nullable();
 
 const action = z.discriminatedUnion("type", [
   z.object({ type: z.literal("verify") }),
+  z.object({ type: z.literal("listVotingEntries") }),
+  z.object({ type: z.literal("createVotingPoll"), title: z.string().trim().min(1).max(200), entryIds: z.array(id).min(2).max(100) }),
+  z.object({ type: z.literal("startVotingPoll"), pollId: id }),
+  z.object({ type: z.literal("closeVotingPoll"), pollId: id }),
+  z.object({ type: z.literal("getVotingData") }),
+  z.object({ type: z.literal("calculateVotingPoints"), pollId: id, totalPoints: z.number().int().min(0).max(1000000) }),
+
   z.object({ type: z.literal("addYear"), year: z.number().int().min(1900).max(3000) }),
   z.object({ type: z.literal("deleteYear"), id }),
   z.object({ type: z.literal("addSection"), competition_id: id, section: sectionType }),
