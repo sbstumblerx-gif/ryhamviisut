@@ -28,6 +28,7 @@ create table if not exists public.voting_ballots (
   unique (poll_id, user_id)
 );
 
+create unique index if not exists voting_polls_one_active_idx on public.voting_polls (status) where status = 'active';
 create index if not exists voting_options_poll_id_idx on public.voting_options(poll_id);
 create index if not exists voting_ballots_poll_id_idx on public.voting_ballots(poll_id);
 create index if not exists voting_ballots_option_id_idx on public.voting_ballots(option_id);
