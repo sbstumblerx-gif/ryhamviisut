@@ -61,6 +61,73 @@ export const adminAction = createServerFn({ method: "POST" })
     switch (a.type) {
       case "verify":
         break;
+      case "listVotingEntries": {
+        const { data, error } = await db.from("entries").select("id, artist, song, sections!inner(type, competitions!inner(year))").not("song", "is", null).order("artist");
+        if (error) throw new Error(error.message);
+        return { ok: true, entries: (data ?? []).map((e: any) => ({ id: e.id, artist: e.artist, song: e.song, year: e.sections?.competitions?.year ?? null })) };
+      }
+      case "createVotingPoll": {
+        const { data: entries, error: ee } = await db.from("entries").select("id, artist, song").in("id", a.entryIds);
+        if (ee) throw new Error(ee.message);
+        if (!entries || entries.length !== new Set(a.entryIds).size) throw new Error("Kappaleita ei löytynyt.");
+        const { data: poll, error } = await db.from("voting_polls").insert({ title: a.title, status: "draft" }).select("id").single();
+        if (error) throw new Error(error.message);
+        const { error: oe } = await db.from("voting_options").insert(entries.map((e: any) => ({ poll_id: poll.id, entry_id: e.id, artist: e.artist, song: e.song })));
+        if (oe) { await db.from("voting_polls").delete().eq("id", poll.id); throw new Error(oe.message); }
+        return { ok: true, pollId: poll.id };
+      }
+      case "startVotingPoll": {
+        const { count, error: ce } = await db.from("voting_options").select("id", { count: "exact", head: true }).eq("poll_id", a.pollId);
+        if (ce) throw new Error(ce.message);
+        if (!count || count < 2) throw new Error("Äänestykseen tarvitaan vähintään kaksi kappaletta.");
+        const { data: poll, error } = await db.from("voting_polls").select("status").eq("id", a.pollId).single();
+        if (error) throw new Error(error.message);
+        if (poll.status !== "draft") throw new Error("Vain luonnos voidaan aloittaa.");
+        check(await db.from("voting_polls").update({ status: "active", started_at: new Date().toISOString() }).eq("id", a.pollId));
+        break;
+      }
+      case "closeVotingPoll": {
+        const { data: poll, error } = await db.from("voting_polls").select("status").eq("id", a.pollId).single();
+        if (error) throw new Error(error.message);
+        if (poll.status !== "active") throw new Error("Äänestys ei ole käynnissä.");
+        check(await db.from("voting_polls").update({ status: "closed", closed_at: new Date().toISOString() }).eq("id", a.pollId));
+        break;
+      }
+      case "getVotingData": {
+        const { data: polls, error } = await db.from("voting_polls").select("*").order("created_at", { ascending: false });
+        if (error) throw new Error(error.message);
+        const result = [];
+        for (const poll of polls ?? []) {
+          const { data: opts, error: oe } = await db.from("voting_options").select("*").eq("poll_id", poll.id).order("created_at");
+          if (oe) throw new Error(oe.message);
+          const { data: ballots, error: be } = await db.from("voting_ballots").select("option_id").eq("poll_id", poll.id);
+          if (be) throw new Error(be.message);
+          const total = (ballots ?? []).length;
+          const counts = new Map<string, number>();
+          for (const b of ballots ?? []) counts.set(b.option_id, (counts.get(b.option_id) ?? 0) + 1);
+          result.push({ ...poll, totalVotes: total, options: (opts ?? []).map((o: any) => ({ ...o, votes: counts.get(o.id) ?? 0, percent: total ? ((counts.get(o.id) ?? 0) / total) * 100 : 0 })) });
+        }
+        return { ok: true, polls: result };
+      }
+      case "calculateVotingPoints": {
+        const { data: poll, error } = await db.from("voting_polls").select("status, points_calculated").eq("id", a.pollId).single();
+        if (error) throw new Error(error.message);
+        if (poll.status !== "closed") throw new Error("Sulje äänestys ennen pisteiden laskemista.");
+        if (poll.points_calculated) throw new Error("Pisteet on jo laskettu.");
+        const { data: opts, error: oe } = await db.from("voting_options").select("id").eq("poll_id", a.pollId);
+        if (oe) throw new Error(oe.message);
+        const { data: ballots, error: be } = await db.from("voting_ballots").select("option_id").eq("poll_id", a.pollId);
+        if (be) throw new Error(be.message);
+        const total = (ballots ?? []).length;
+        const counts = new Map<string, number>();
+        for (const b of ballots ?? []) counts.set(b.option_id, (counts.get(b.option_id) ?? 0) + 1);
+        for (const o of opts ?? []) {
+          const points = total ? Math.round(((counts.get(o.id) ?? 0) / total) * a.totalPoints) : 0;
+          check(await db.from("voting_options").update({ audience_points: points }).eq("id", o.id));
+        }
+        check(await db.from("voting_polls").update({ total_audience_points: a.totalPoints, points_calculated: true }).eq("id", a.pollId));
+        break;
+      }
       case "addYear":
         check(await db.from("competitions").insert({ year: a.year }));
         break;
