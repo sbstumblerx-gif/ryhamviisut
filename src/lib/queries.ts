@@ -42,3 +42,62 @@ export const sectionQuery = (id: string) =>
       return data;
     },
   });
+
+
+export const artistDirectoryQuery = queryOptions({
+  queryKey: ["artist-directory"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("sections")
+      .select("id, type, competitions(year), entries(id, artist, song, audience_points, status)");
+    if (error) throw error;
+
+    const artists = new Map<string, { name: string; appearances: { year: number | null; sectionType: string; song: string | null }[] }>();
+    for (const section of data ?? []) {
+      for (const entry of section.entries ?? []) {
+        const name = entry.artist?.trim();
+        if (!name) continue;
+        const key = name.toLocaleLowerCase("fi-FI");
+        const artist = artists.get(key) ?? { name, appearances: [] };
+        artist.appearances.push({
+          year: section.competitions?.year ?? null,
+          sectionType: section.type,
+          song: entry.song,
+        });
+        artists.set(key, artist);
+      }
+    }
+
+    return [...artists.values()].sort((a, b) => a.name.localeCompare(b.name, "fi"));
+  },
+});
+
+export const artistDetailQuery = (artistSlug: string) =>
+  queryOptions({
+    queryKey: ["artist-detail", artistSlug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sections")
+        .select("id, type, competitions(year), entries(id, artist, song, audience_points, status, created_at), juries(*, jury_votes(*))");
+      if (error) throw error;
+
+      const slugify = (name: string) =>
+        name.trim().toLocaleLowerCase("fi-FI")
+          .normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+      const appearances = (data ?? []).flatMap((section) =>
+        (section.entries ?? [])
+          .filter((entry) => entry.artist?.trim() && slugify(entry.artist) === artistSlug)
+          .map((entry) => ({
+            ...entry,
+            year: section.competitions?.year ?? null,
+            sectionType: section.type,
+            sectionId: section.id,
+            juries: section.juries ?? [],
+          })),
+      );
+      const name = appearances[0]?.artist ?? null;
+      return { name, appearances };
+    },
+  });
