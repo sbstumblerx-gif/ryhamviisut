@@ -9,6 +9,7 @@ export function ArtistLink({ name, className }: { name: string; className?: stri
     <Link
       to="/artistit/$artist"
       params={{ artist: artistKey(name) }}
+      reloadDocument
       className={className ?? "text-primary hover:underline"}
     >
       {name}
