@@ -47,6 +47,7 @@ function StatisticsPage() {
   const [special, setSpecial] = useState<"artist" | "jury">("artist");
   const [selectedArtist, setSelectedArtist] = useState("");
   const [selectedJury, setSelectedJury] = useState("");
+  const [specialPhase, setSpecialPhase] = useState<"finaali" | "karsinta">("finaali");
 
   const { data: sections = [], isLoading, error } = useQuery({
     queryKey: ["statistics-sections"],
@@ -105,7 +106,7 @@ function StatisticsPage() {
     if (!selectedArtist) return [];
     const sums = new Map<string, { name: string; points: number }>();
     for (const section of sections) {
-      if (section.type !== "finaali" && section.type !== "karsinta") continue;
+      if (section.type !== specialPhase) continue;
       const entryIds = new Set((section.entries ?? []).filter((e) => normalize(e.artist) === selectedArtist).map((e) => e.id));
       for (const jury of section.juries ?? []) {
         const key = normalize(jury.name);
@@ -115,13 +116,13 @@ function StatisticsPage() {
       }
     }
     return [...sums.values()].sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, "fi"));
-  }, [sections, selectedArtist]);
+  }, [sections, selectedArtist, specialPhase]);
 
   const artistReceivingFromJury = useMemo(() => {
     if (!selectedJury) return [];
     const sums = new Map<string, ArtistTotal>();
     for (const section of sections) {
-      if (section.type !== "finaali" && section.type !== "karsinta") continue;
+      if (section.type !== specialPhase) continue;
       for (const jury of section.juries ?? []) {
         if (normalize(jury.name) !== selectedJury) continue;
         for (const vote of jury.jury_votes ?? []) {
@@ -135,7 +136,7 @@ function StatisticsPage() {
       }
     }
     return [...sums.values()].sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, "fi"));
-  }, [sections, selectedJury]);
+  }, [sections, selectedJury, specialPhase]);
 
   if (isLoading) return <PageShell title="Tilastot"><p className="text-muted-foreground">Ladataan tilastoja…</p></PageShell>;
   if (error) return <PageShell title="Tilastot"><p className="text-destructive">Tilastojen lataaminen epäonnistui.</p></PageShell>;
@@ -164,7 +165,12 @@ function StatisticsPage() {
 
       <section className="mb-8 rounded-xl border bg-card p-4 sm:p-6">
         <h2 className="mb-2 text-2xl">Raadin pisteiden jakautuminen</h2>
-        <p className="mb-4 text-sm text-muted-foreground">Näissä vertailuissa huomioidaan sekä karsinnat että finaalit.</p>
+        <p className="mb-4 text-sm text-muted-foreground">Valitse erikseen finaalien tai karsintojen raativertailu.</p>
+        <label className="mb-2 block font-semibold" htmlFor="special-phase">Kilpailun vaihe</label>
+        <select id="special-phase" className="mb-4 w-full max-w-md rounded-md border bg-background px-3 py-2" value={specialPhase} onChange={(e) => setSpecialPhase(e.target.value as "finaali" | "karsinta")}>
+          <option value="finaali">Finaalit</option>
+          <option value="karsinta">Karsinnat</option>
+        </select>
         <label className="mb-2 block font-semibold" htmlFor="special-mode">Tilasto</label>
         <select id="special-mode" className="mb-4 w-full max-w-md rounded-md border bg-background px-3 py-2" value={special} onChange={(e) => setSpecial(e.target.value as "artist" | "jury")}>
           <option value="artist">Ketkä raadit ovat antaneet eniten pisteitä artistille?</option>
@@ -199,7 +205,7 @@ function Ranking({ rows, firstLabel, nameLabel }: { rows: ArtistTotal[]; firstLa
   return (
     <div className="overflow-x-auto rounded-lg border">
       <table className="w-full text-sm">
-        <thead className="bg-secondary text-left"><tr><th className="p-3">{firstLabel}</th><th className="p-3">{nameLabel}</th><th className="p-3 text-right">Annetut raatipisteet</th></tr></thead>
+        <thead className="bg-secondary text-left"><tr><th className="p-3">{firstLabel}</th><th className="p-3">{nameLabel}</th><th className="p-3 text-right">Raatipisteet</th></tr></thead>
         <tbody>
           {rows.map((row, i) => <tr key={normalize(row.name)} className="border-t"><td className="p-3 text-muted-foreground">{i + 1}</td><td className="p-3">{row.name}</td><td className="p-3 text-right font-semibold">{row.points}</td></tr>)}
           {rows.length === 0 && <tr><td colSpan={3} className="p-4 text-muted-foreground">Ei vielä pisteitä näillä valinnoilla.</td></tr>}
