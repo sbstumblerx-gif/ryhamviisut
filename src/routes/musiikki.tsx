@@ -58,9 +58,6 @@ function MusicPage() {
     <PageShell title="Musiikki">
       <div className="mb-6 rounded-xl border bg-card p-4">
         <div className="flex items-center gap-2 font-semibold"><ListMusic className="h-5 w-5 text-accent" /> Ryhämviisujen musiikkikirjasto</div>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Jokainen kappale ilmestyy tänne automaattisesti, kun se lisätään kilpailun osioon. Lisää kappaleelle YouTube-musiikkivideon linkki, niin voit käynnistää sen sivun omassa soittimessa ja jatkaa selaamista musiikin soidessa.
-        </p>
       </div>
 
       <input
