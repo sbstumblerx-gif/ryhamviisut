@@ -4,10 +4,10 @@ import { Settings, Trophy, BarChart3, Mic2, Music, Vote, UserPlus } from "lucide
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Ryhmäviisut" },
-      { name: "description", content: "Ryhmäviisujen kilpailut, tulokset, artistit ja musiikki." },
-      { property: "og:title", content: "Ryhmäviisut" },
-      { property: "og:description", content: "Ryhmäviisujen kilpailut, tulokset, artistit ja musiikki." },
+      { title: "Ryhämviisut" },
+      { name: "description", content: "Ryhämviisujen kilpailut, tulokset, artistit ja musiikki." },
+      { property: "og:title", content: "Ryhämviisut" },
+      { property: "og:description", content: "Ryhämviisujen kilpailut, tulokset, artistit ja musiikki." },
     ],
   }),
   component: Index,
@@ -32,7 +32,7 @@ function Index() {
       </div>
       <div className="flex flex-1 flex-col justify-center">
         <h1 className="text-center text-7xl text-foreground md:text-9xl">
-          Ryhmä<span className="text-primary">viisut</span>
+          Ryhäm<span className="text-primary">viisut</span>
         </h1>
         <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3">
           {items.map(({ to, label, icon: Icon }) => (
