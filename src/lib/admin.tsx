@@ -28,8 +28,9 @@ export function useAdmin() {
   const run = useCallback(
     async (action: AdminActionInput) => {
       if (!code) return;
-      await adminAction({ data: { code, action } });
+      const result = await adminAction({ data: { code, action } });
       await qc.invalidateQueries();
+      return result;
     },
     [code, qc],
   );
