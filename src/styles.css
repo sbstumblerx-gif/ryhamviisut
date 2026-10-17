@@ -63,12 +63,26 @@
 @layer base {
   * { border-color: var(--color-border); }
   body {
+    position: relative;
+    isolation: isolate;
     background-color: var(--color-background);
     background-image: var(--gradient-stage);
     background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-sans);
     min-height: 100vh;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: url("/N%C3%A4ytt%C3%B6kuva%202026-10-17%20103848.png");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0.14;
   }
   h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0.03em; }
 }
