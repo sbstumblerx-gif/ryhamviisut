@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AanestaRouteImport } from './routes/aanesta'
 import { Route as ArtistitRouteImport } from './routes/artistit'
+import { Route as ArtistitArtistRouteImport } from './routes/artistit.$artist'
 import { Route as AsetuksetRouteImport } from './routes/asetukset'
 import { Route as MusiikkiRouteImport } from './routes/musiikki'
 import { Route as OsallistuRouteImport } from './routes/osallistu'
@@ -33,6 +34,11 @@ const AanestaRoute = AanestaRouteImport.update({
 const ArtistitRoute = ArtistitRouteImport.update({
   id: '/artistit',
   path: '/artistit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArtistitArtistRoute = ArtistitArtistRouteImport.update({
+  id: '/artistit/$artist',
+  path: '/artistit/$artist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AsetuksetRoute = AsetuksetRouteImport.update({
@@ -75,6 +81,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/artistit': typeof ArtistitRoute
+  '/artistit/$artist': typeof ArtistitArtistRoute
+  '/artistit/$artist': typeof ArtistitArtistRoute
+  '/artistit/$artist': typeof ArtistitArtistRoute
   '/asetukset': typeof AsetuksetRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/'
     | '/aanesta'
     | '/artistit'
+    | '/artistit/$artist'
     | '/asetukset'
     | '/musiikki'
     | '/osallistu'
@@ -151,6 +161,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AanestaRoute: typeof AanestaRoute
   ArtistitRoute: typeof ArtistitRoute
+  ArtistitArtistRoute: typeof ArtistitArtistRoute
   AsetuksetRoute: typeof AsetuksetRoute
   MusiikkiRoute: typeof MusiikkiRoute
   OsallistuRoute: typeof OsallistuRoute
@@ -181,6 +192,13 @@ declare module '@tanstack/react-router' {
       path: '/artistit'
       fullPath: '/artistit'
       preLoaderRoute: typeof ArtistitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/artistit/$artist': {
+      id: '/artistit/$artist'
+      path: '/artistit/$artist'
+      fullPath: '/artistit/$artist'
+      preLoaderRoute: typeof ArtistitArtistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/asetukset': {
@@ -239,6 +257,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AanestaRoute: AanestaRoute,
   ArtistitRoute: ArtistitRoute,
+  ArtistitArtistRoute: ArtistitArtistRoute,
   AsetuksetRoute: AsetuksetRoute,
   MusiikkiRoute: MusiikkiRoute,
   OsallistuRoute: OsallistuRoute,
