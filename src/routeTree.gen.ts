@@ -82,8 +82,6 @@ export interface FileRoutesByFullPath {
   '/aanesta': typeof AanestaRoute
   '/artistit': typeof ArtistitRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
-  '/artistit/$artist': typeof ArtistitArtistRoute
-  '/artistit/$artist': typeof ArtistitArtistRoute
   '/asetukset': typeof AsetuksetRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
@@ -96,6 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/artistit': typeof ArtistitRoute
+  '/artistit/$artist': typeof ArtistitArtistRoute
   '/asetukset': typeof AsetuksetRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
@@ -109,6 +108,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/artistit': typeof ArtistitRoute
+  '/artistit/$artist': typeof ArtistitArtistRoute
   '/asetukset': typeof AsetuksetRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
@@ -136,6 +136,7 @@ export interface FileRouteTypes {
     | '/'
     | '/aanesta'
     | '/artistit'
+    | '/artistit/$artist'
     | '/asetukset'
     | '/musiikki'
     | '/osallistu'
@@ -148,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/aanesta'
     | '/artistit'
+    | '/artistit/$artist'
     | '/asetukset'
     | '/musiikki'
     | '/osallistu'
