@@ -4,10 +4,10 @@ import { PageShell, ComingSoon } from "@/components/PageShell";
 export const Route = createFileRoute("/osallistu")({
   head: () => ({
     meta: [
-      { title: "Osallistu – Ryhmäviisut" },
-      { name: "description", content: "Ryhmäviisut: Osallistu" },
-      { property: "og:title", content: "Osallistu – Ryhmäviisut" },
-      { property: "og:description", content: "Ryhmäviisut: Osallistu" },
+      { title: "Osallistu – Ryhämviisut" },
+      { name: "description", content: "Ryhämviisut: Osallistu" },
+      { property: "og:title", content: "Osallistu – Ryhämviisut" },
+      { property: "og:description", content: "Ryhämviisut: Osallistu" },
     ],
   }),
   component: () => (
