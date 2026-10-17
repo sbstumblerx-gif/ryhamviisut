@@ -41,12 +41,28 @@ function MusicPage() {
         .from("entries")
         .select("id, artist, song, video_url, created_at, section_id, sections(type, competitions(year))");
       if (error) throw error;
-      return ((data ?? []) as unknown as MusicEntry[])
+      const entries = ((data ?? []) as unknown as MusicEntry[])
         .filter((entry) => entry.song?.trim())
-        .sort((a, b) => {
-          const yearDiff = (b.section?.competitions?.year ?? 0) - (a.section?.competitions?.year ?? 0);
-          return yearDiff || b.created_at.localeCompare(a.created_at);
-        });
+        .sort((a, b) => a.created_at.localeCompare(b.created_at));
+
+      // One exact artist + song pair represents one song, even if duplicate rows exist.
+      // Keep the earliest-created row as the canonical participation/year, but retain a
+      // YouTube URL if it was saved on another duplicate row.
+      const uniqueEntries = new Map<string, MusicEntry>();
+      for (const entry of entries) {
+        const key = JSON.stringify([entry.artist, entry.song]);
+        const existing = uniqueEntries.get(key);
+        if (!existing) {
+          uniqueEntries.set(key, entry);
+        } else if (!existing.video_url && entry.video_url) {
+          uniqueEntries.set(key, { ...existing, video_url: entry.video_url });
+        }
+      }
+
+      return [...uniqueEntries.values()].sort((a, b) => {
+        const yearDiff = (b.section?.competitions?.year ?? 0) - (a.section?.competitions?.year ?? 0);
+        return yearDiff || b.created_at.localeCompare(a.created_at);
+      });
     },
   });
 
