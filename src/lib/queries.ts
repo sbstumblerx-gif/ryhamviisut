@@ -52,15 +52,17 @@ export const artistDirectoryQuery = queryOptions({
       .select("id, type, competitions(year), entries(id, artist, song, audience_points, status)");
     if (error) throw error;
 
-    const artists = new Map<string, { name: string; appearances: { year: number | null; sectionType: string; song: string | null }[] }>();
+    const artists = new Map<string, { name: string; appearances: { year: number | null; sectionType: string; song: string | null }[]; competitionYears: number[] }>();
     for (const section of data ?? []) {
       for (const entry of section.entries ?? []) {
         const name = entry.artist?.trim();
         if (!name) continue;
         const key = name.toLocaleLowerCase("fi-FI");
-        const artist = artists.get(key) ?? { name, appearances: [] };
+        const artist = artists.get(key) ?? { name, appearances: [], competitionYears: [] };
+        const year = section.competitions?.year ?? null;
+        if (year !== null && !artist.competitionYears.includes(year)) artist.competitionYears.push(year);
         artist.appearances.push({
-          year: section.competitions?.year ?? null,
+          year,
           sectionType: section.type,
           song: entry.song,
         });
