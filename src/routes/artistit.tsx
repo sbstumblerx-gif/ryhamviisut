@@ -23,7 +23,7 @@ function ArtistsPage() {
   return (
     <PageShell title="Artistit">
       <p className="mb-5 text-muted-foreground">
-        Kaikki artisteiksi lisätyt nimet. Täsmälleen samat nimet yhdistetään samaksi artistiksi.
+        Kaikki artisteiksi lisätyt nimet. Täsmälleen samat nimet yhdistetään samaksi artistiksi. Kilpailumäärä lasketaan eri kilpailuvuosien perusteella.
       </p>
       {data.length === 0 ? (
         <p className="text-muted-foreground">Yhtään artistia ei ole vielä lisätty kilpailuihin.</p>
@@ -33,7 +33,7 @@ function ArtistsPage() {
             <li key={artist.name.toLocaleLowerCase("fi-FI")} className="tile p-4">
               <ArtistLink name={artist.name} className="font-semibold text-lg text-primary hover:underline" />
               <p className="mt-1 text-sm text-muted-foreground">
-                {artist.appearances.length} {artist.appearances.length === 1 ? "kilpailumerkintä" : "kilpailumerkintää"}
+                {artist.competitionYears.length} {artist.competitionYears.length === 1 ? "kilpailuvuosi" : "kilpailuvuotta"}
               </p>
             </li>
           ))}
