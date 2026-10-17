@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Settings, Trophy, BarChart3, Mic2, Music, Vote, UserPlus } from "lucide-react";
+import { Settings, Trophy, BarChart3, Mic2, Music, Vote, UserPlus, LogIn } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,7 +25,10 @@ const items = [
 function Index() {
   return (
     <div className="mx-auto flex min-h-screen max-w-4xl flex-col px-4 py-8">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-4">
+        <Link to="/kirjaudu" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent">
+          <LogIn className="h-5 w-5" /> Kirjaudu
+        </Link>
         <Link to="/asetukset" aria-label="Asetukset" className="text-muted-foreground hover:text-accent">
           <Settings className="h-6 w-6" />
         </Link>
