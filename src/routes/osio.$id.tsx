@@ -120,7 +120,7 @@ function AddEntry({ sectionId, withSong, admin }: { sectionId: string; withSong:
   const [videoUrl, setVideoUrl] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const canSubmit = artist.trim() && (!withSong || (song.trim() && youtubeEmbed(videoUrl.trim())));
+  const canSubmit = Boolean(artist.trim()) && (!withSong || (Boolean(song.trim()) && Boolean(youtubeEmbed(videoUrl.trim()))));
 
   return (
     <form
