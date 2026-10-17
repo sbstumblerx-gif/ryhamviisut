@@ -53,7 +53,8 @@ export const adminAction = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => input.parse(d))
   .handler(async ({ data }) => {
     if (data.code !== "Valkkuonsöpö321") throw new Error("Väärä koodi");
-    const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const db = supabaseAdmin as any;
     const a = data.action;
     const check = (r: { error: { message: string } | null }) => {
       if (r.error) throw new Error(r.error.message);
