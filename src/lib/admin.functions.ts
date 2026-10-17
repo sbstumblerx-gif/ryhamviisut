@@ -35,6 +35,8 @@ const action = z.discriminatedUnion("type", [
   }),
 ]);
 
+export type AdminActionInput = z.infer<typeof action>;
+
 const input = z.object({ code: z.string().max(200), action });
 
 export const adminAction = createServerFn({ method: "POST" })
@@ -68,8 +70,12 @@ export const adminAction = createServerFn({ method: "POST" })
         check(await db.from("entries").insert({ section_id: a.section_id, artist: a.artist, song: a.song || null }));
         break;
       case "updateEntry": {
-        const { type: _t, id: eid, ...rest } = a;
-        check(await db.from("entries").update(rest).eq("id", eid));
+        const patch: { artist?: string; song?: string | null; audience_points?: number; status?: string | null } = {};
+        if (a.artist !== undefined) patch.artist = a.artist;
+        if (a.song !== undefined) patch.song = a.song;
+        if (a.audience_points !== undefined) patch.audience_points = a.audience_points;
+        if (a.status !== undefined) patch.status = a.status;
+        check(await db.from("entries").update(patch).eq("id", a.id));
         break;
       }
       case "deleteEntry":

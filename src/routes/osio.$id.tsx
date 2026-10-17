@@ -174,7 +174,8 @@ function JuryEditor({ jury, entries, admin }: { jury: Jury; entries: Entry[]; ad
     const j = i + d;
     if (j < 0 || j >= rows.length) return;
     const next = [...rows];
-    [next[i], next[j]] = [next[j], next[i]];
+    const [item] = next.splice(i, 1);
+    if (item) next.splice(j, 0, item);
     setRows(next);
   };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { adminAction } from "./admin.functions";
+import { adminAction, type AdminActionInput } from "./admin.functions";
 
 const KEY = "rv-admin-code";
 const listeners = new Set<() => void>();
@@ -25,9 +25,8 @@ export function useAdmin() {
     listeners.forEach((l) => l());
   }, []);
 
-  type Action = Parameters<typeof adminAction>[0]["data"]["action"];
   const run = useCallback(
-    async (action: Action) => {
+    async (action: AdminActionInput) => {
       if (!code) return;
       await adminAction({ data: { code, action } });
       await qc.invalidateQueries();
