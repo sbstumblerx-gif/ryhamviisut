@@ -84,6 +84,9 @@ export const adminAction = createServerFn({ method: "POST" })
         const { data: poll, error } = await db.from("voting_polls").select("status").eq("id", a.pollId).single();
         if (error) throw new Error(error.message);
         if (poll.status !== "draft") throw new Error("Vain luonnos voidaan aloittaa.");
+        const { count: activeCount, error: activeError } = await db.from("voting_polls").select("id", { count: "exact", head: true }).eq("status", "active");
+        if (activeError) throw new Error(activeError.message);
+        if ((activeCount ?? 0) > 0) throw new Error("Sulje ensin käynnissä oleva äänestys.");
         check(await db.from("voting_polls").update({ status: "active", started_at: new Date().toISOString() }).eq("id", a.pollId));
         break;
       }
