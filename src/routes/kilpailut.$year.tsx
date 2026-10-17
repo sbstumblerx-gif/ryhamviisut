@@ -10,10 +10,10 @@ import { SECTION_LABEL, SECTION_TYPES, yearQuery } from "@/lib/queries";
 export const Route = createFileRoute("/kilpailut/$year")({
   head: ({ params }) => ({
     meta: [
-      { title: `Ryhmäviisut ${params.year}` },
-      { name: "description", content: `Ryhmäviisut ${params.year}: osiot ja tulokset.` },
-      { property: "og:title", content: `Ryhmäviisut ${params.year}` },
-      { property: "og:description", content: `Ryhmäviisut ${params.year}: osiot ja tulokset.` },
+      { title: `Ryhämviisut ${params.year}` },
+      { name: "description", content: `Ryhämviisut ${params.year}: osiot ja tulokset.` },
+      { property: "og:title", content: `Ryhämviisut ${params.year}` },
+      { property: "og:description", content: `Ryhämviisut ${params.year}: osiot ja tulokset.` },
     ],
   }),
   loader: ({ context, params }) => context.queryClient.ensureQueryData(yearQuery(Number(params.year))),
@@ -31,7 +31,7 @@ function YearPage() {
   const missing = SECTION_TYPES.filter((t) => !data.sections.some((s) => s.type === t));
 
   return (
-    <PageShell title={`Ryhmäviisut ${year}`} back="/kilpailut">
+    <PageShell title={`Ryhämviisut ${year}`} back="/kilpailut">
       {isAdmin && missing.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-2">
           {missing.map((t) => (
