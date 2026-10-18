@@ -22,7 +22,7 @@ export const Route = createFileRoute("/osallistu")({
 
 const opportunities = [
   {
-    title: "Raadihakemus",
+    title: "Raatihakemus",
     icon: ClipboardList,
     description:
       "Haluatko päästä arvioimaan kilpailukappaleita ja vaikuttamaan tuloksiin? Hae mukaan Ryhämviisujen raadiksi.",
