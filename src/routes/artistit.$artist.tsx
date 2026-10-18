@@ -1,10 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Play, Music2, Trophy, Users, Star, Gavel } from "lucide-react";
+import { useState } from "react";
+import { Play, Music2, Trophy, Users, Star, Gavel, Pencil } from "lucide-react";
+import { toast } from "sonner";
 import { PageShell } from "@/components/PageShell";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { SECTION_LABEL, artistDetailQuery } from "@/lib/queries";
 import { playMusicTrack } from "@/components/MusicPlayer";
-import { youtubeEmbed } from "@/lib/admin";
+import { useAdmin, youtubeEmbed } from "@/lib/admin";
 
 export const Route = createFileRoute("/artistit/$artist")({
   head: ({ params }) => ({
