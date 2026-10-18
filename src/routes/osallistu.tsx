@@ -160,14 +160,15 @@ function ParticipatePage() {
             ) : (
               <p className="inline-flex items-center gap-2 text-sm text-muted-foreground"><CheckCircle2 className="h-5 w-5" /> Säännöt on luettu.</p>
             )}
-            <button
-              type="button"
-              disabled={secondsLeft > 0}
-              onClick={() => setRulesOpen(false)}
-              className="inline-flex items-center justify-center rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Jatka hakemukseen{secondsLeft > 0 ? ` (${secondsLeft} s)` : ""}
-            </button>
+            {secondsLeft === 0 && (
+              <button
+                type="button"
+                onClick={() => setRulesOpen(false)}
+                className="inline-flex items-center justify-center rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                Jatka hakemukseen
+              </button>
+            )}
           </div>
         </section>
       )}
