@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AanestaRouteImport } from './routes/aanesta'
-import { Route as AsetuksetRouteImport } from './routes/asetukset'\nimport { Route as AgenttiRouteImport } from './routes/agentti'\nimport { Route as ApiAgentRouteImport } from './routes/api.agent'
+import { Route as AsetuksetRouteImport } from './routes/asetukset'
+import { Route as AgenttiRouteImport } from './routes/agentti'
+import { Route as ApiAgentRouteImport } from './routes/api.agent'
 import { Route as KirjauduRouteImport } from './routes/kirjaudu'
 import { Route as MusiikkiRouteImport } from './routes/musiikki'
 import { Route as OsallistuRouteImport } from './routes/osallistu'
@@ -32,7 +34,17 @@ const AanestaRoute = AanestaRouteImport.update({
   path: '/aanesta',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AgenttiRoute = AgenttiRouteImport.update({\n  id: '/agentti',\n  path: '/agentti',\n  getParentRoute: () => rootRouteImport,\n} as any)\nconst ApiAgentRoute = ApiAgentRouteImport.update({\n  id: '/api/agent',\n  path: '/api/agent',\n  getParentRoute: () => rootRouteImport,\n} as any)\nconst AsetuksetRoute = AsetuksetRouteImport.update({
+const AgenttiRoute = AgenttiRouteImport.update({
+  id: '/agentti',
+  path: '/agentti',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentRoute = ApiAgentRouteImport.update({
+  id: '/api/agent',
+  path: '/api/agent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AsetuksetRoute = AsetuksetRouteImport.update({
   id: '/asetukset',
   path: '/asetukset',
   getParentRoute: () => rootRouteImport,
@@ -86,7 +98,9 @@ const OsioIdRoute = OsioIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
-  '/agentti': typeof AgenttiRoute\n  '/api/agent': typeof ApiAgentRoute\n  '/agentti': typeof AgenttiRoute\n  '/api/agent': typeof ApiAgentRoute\n  '/agentti': typeof AgenttiRoute\n  '/api/agent': typeof ApiAgentRoute\n  '/asetukset': typeof AsetuksetRoute
+  '/agentti': typeof AgenttiRoute
+  '/api/agent': typeof ApiAgentRoute
+  '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
@@ -112,7 +126,7 @@ export interface FileRoutesByTo {
   '/kilpailut': typeof KilpailutIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport\n  '/agentti': typeof AgenttiRoute\n  '/api/agent': typeof ApiAgentRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/asetukset': typeof AsetuksetRoute
@@ -129,6 +143,8 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/agentti'
+    | '/api/agent'
     | '/'
     | '/aanesta'
     | '/asetukset'
@@ -143,6 +159,8 @@ export interface FileRouteTypes {
     | '/kilpailut/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/agentti'
+    | '/api/agent'
     | '/'
     | '/aanesta'
     | '/asetukset'
@@ -157,6 +175,8 @@ export interface FileRouteTypes {
     | '/kilpailut'
   id:
     | '__root__'
+    | '/agentti'
+    | '/api/agent'
     | '/'
     | '/aanesta'
     | '/asetukset'
@@ -174,7 +194,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AanestaRoute: typeof AanestaRoute
-  AgenttiRoute: typeof AgenttiRoute\n  ApiAgentRoute: typeof ApiAgentRoute\n  AsetuksetRoute: typeof AsetuksetRoute
+  AgenttiRoute: typeof AgenttiRoute
+  ApiAgentRoute: typeof ApiAgentRoute
+  AsetuksetRoute: typeof AsetuksetRoute
   KirjauduRoute: typeof KirjauduRoute
   MusiikkiRoute: typeof MusiikkiRoute
   OsallistuRoute: typeof OsallistuRoute
@@ -200,6 +222,20 @@ declare module '@tanstack/react-router' {
       path: '/aanesta'
       fullPath: '/aanesta'
       preLoaderRoute: typeof AanestaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agentti': {
+      id: '/agentti'
+      path: '/agentti'
+      fullPath: '/agentti'
+      preLoaderRoute: typeof AgenttiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent': {
+      id: '/api/agent'
+      path: '/api/agent'
+      fullPath: '/api/agent'
+      preLoaderRoute: typeof ApiAgentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/asetukset': {
@@ -278,6 +314,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AanestaRoute: AanestaRoute,
+  AgenttiRoute: AgenttiRoute,
+  ApiAgentRoute: ApiAgentRoute,
   AsetuksetRoute: AsetuksetRoute,
   KirjauduRoute: KirjauduRoute,
   MusiikkiRoute: MusiikkiRoute,
