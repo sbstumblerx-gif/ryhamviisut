@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Ryhämviisut kokoaa yhteen kilpailut, tulokset, artistit ja musiikin. Tutustu kilpailuihin, kuuntele kappaleita ja osallistu mukaan." },
       { name: "robots", content: "index, follow, max-image-preview:large" },
       { name: "googlebot", content: "index, follow, max-image-preview:large" },
-      { property: "og:title", content: "Ryhämviisut" },
+      { property: "og:title", content: "Ryhämviisut – kilpailut, artistit ja musiikki" },
       { property: "og:description", content: "Ryhämviisut kokoaa yhteen kilpailut, tulokset, artistit ja musiikin. Tutustu kilpailuihin, kuuntele kappaleita ja osallistu mukaan." },
       { property: "og:site_name", content: "Ryhämviisut" },
       { property: "og:locale", content: "fi_FI" },
