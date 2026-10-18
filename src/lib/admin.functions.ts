@@ -7,6 +7,8 @@ const youtubeUrl = z.string().trim().max(500).nullable();
 
 const action = z.discriminatedUnion("type", [
   z.object({ type: z.literal("verify") }),
+  z.object({ type: z.literal("listApplications") }),
+  z.object({ type: z.literal("replyApplication"), id, reply: z.string().trim().min(1).max(10000) }),
   z.object({ type: z.literal("listVotingEntries") }),
   z.object({ type: z.literal("createVotingPoll"), title: z.string().trim().min(1).max(200), entryIds: z.array(id).min(2).max(100) }),
   z.object({ type: z.literal("startVotingPoll"), pollId: id }),
