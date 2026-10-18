@@ -23,20 +23,20 @@ import {
 } from "react";
 import type {
   BundledLanguage,
-  BundledTheme,
-  HighlighterGeneric,
   ThemedToken,
 } from "shiki";
 import { createHighlighter } from "shiki";
 
 // Shiki uses bitflags for font styles: 1=italic, 2=bold, 4=underline
 // oxlint-disable-next-line eslint(no-bitwise)
-const isItalic = (fontStyle: number | undefined) => fontStyle && fontStyle & 1;
+const isItalic = (fontStyle: number | undefined): boolean =>
+  fontStyle !== undefined && (fontStyle & 1) !== 0;
 // oxlint-disable-next-line eslint(no-bitwise)
-const isBold = (fontStyle: number | undefined) => fontStyle && fontStyle & 2;
-const isUnderline = (fontStyle: number | undefined) =>
+const isBold = (fontStyle: number | undefined): boolean =>
+  fontStyle !== undefined && (fontStyle & 2) !== 0;
+const isUnderline = (fontStyle: number | undefined): boolean =>
   // oxlint-disable-next-line eslint(no-bitwise)
-  fontStyle && fontStyle & 4;
+  fontStyle !== undefined && (fontStyle & 4) !== 0;
 
 // Transform tokens to include pre-computed keys to avoid noArrayIndexKey lint
 interface KeyedToken {
@@ -130,10 +130,9 @@ const CodeBlockContext = createContext<CodeBlockContextType>({
 });
 
 // Highlighter cache (singleton per language)
-const highlighterCache = new Map<
-  string,
-  Promise<HighlighterGeneric<BundledLanguage, BundledTheme>>
->();
+type CachedHighlighter = Awaited<ReturnType<typeof createHighlighter>>;
+
+const highlighterCache = new Map<string, Promise<CachedHighlighter>>();
 
 // Token cache
 const tokensCache = new Map<string, TokenizedCode>();
@@ -149,7 +148,7 @@ const getTokensCacheKey = (code: string, language: BundledLanguage) => {
 
 const getHighlighter = (
   language: BundledLanguage
-): Promise<HighlighterGeneric<BundledLanguage, BundledTheme>> => {
+): Promise<CachedHighlighter> => {
   const cached = highlighterCache.get(language);
   if (cached) {
     return cached;
