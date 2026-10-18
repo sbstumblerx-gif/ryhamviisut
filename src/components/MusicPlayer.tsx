@@ -54,7 +54,19 @@ export function MusicPlayer() {
           <p className="truncate text-sm font-semibold">{track.title}</p>
           <p className="truncate text-xs text-muted-foreground">{track.artist}</p>
         </div>
-        <button aria-label="Piilota musiikkisoitin" className="rounded p-1 text-muted-foreground hover:text-foreground" onClick={() => setVisible(false)}>
+        <button
+          aria-label="Sulje musiikkisoitin"
+          className="rounded p-1 text-muted-foreground hover:text-foreground"
+          onClick={() => {
+            try {
+              localStorage.removeItem(STORAGE_KEY);
+            } catch {
+              // The component state still hides the player if storage is unavailable.
+            }
+            setTrack(null);
+            setVisible(false);
+          }}
+        >
           <X className="h-4 w-4" />
         </button>
       </div>
