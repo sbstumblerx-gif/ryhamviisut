@@ -80,14 +80,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Ryhämviisut" },
-      { name: "description", content: "Ryhämviisujen kotisivu." },
-      { name: "author", content: "Lovable" },
+      { title: "Ryhämviisut – kilpailut, artistit ja musiikki" },
+      { name: "description", content: "Ryhämviisut kokoaa yhteen kilpailut, tulokset, artistit ja musiikin. Tutustu kilpailuihin, kuuntele kappaleita ja osallistu mukaan." },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
+      { name: "googlebot", content: "index, follow, max-image-preview:large" },
       { property: "og:title", content: "Ryhämviisut" },
-      { property: "og:description", content: "Ryhämviisujen kotisivu." },
+      { property: "og:description", content: "Ryhämviisut kokoaa yhteen kilpailut, tulokset, artistit ja musiikin. Tutustu kilpailuihin, kuuntele kappaleita ja osallistu mukaan." },
+      { property: "og:site_name", content: "Ryhämviisut" },
+      { property: "og:locale", content: "fi_FI" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
