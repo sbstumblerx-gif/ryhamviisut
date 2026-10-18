@@ -65,6 +65,15 @@ export const adminAction = createServerFn({ method: "POST" })
     switch (a.type) {
       case "verify":
         break;
+      case "listApplications": {
+        const { data, error } = await db.from("applications").select("id, application_type, applicant_name, contact_email, payload, admin_reply, replied_at, created_at").order("created_at", { ascending: false }).limit(200);
+        if (error) throw new Error(error.message);
+        return { ok: true, applications: data ?? [] };
+      }
+      case "replyApplication": {
+        check(await db.from("applications").update({ admin_reply: a.reply, replied_at: new Date().toISOString() }).eq("id", a.id));
+        break;
+      }
       case "listVotingEntries": {
         const { data, error } = await db.from("entries").select("id, artist, song, sections!inner(type, competitions!inner(year))").not("song", "is", null).order("artist");
         if (error) throw new Error(error.message);
