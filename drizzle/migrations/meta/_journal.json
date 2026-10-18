@@ -15,6 +15,13 @@
       "when": 1792304609737,
       "tag": "0001_artist_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792305355354,
+      "tag": "0002_chat_threads_messages",
+      "breakpoints": true
     }
   ]
 }
