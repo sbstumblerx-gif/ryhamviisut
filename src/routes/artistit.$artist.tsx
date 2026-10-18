@@ -24,6 +24,23 @@ export const Route = createFileRoute("/artistit/$artist")({
 function ArtistPage() {
   const { artist } = Route.useParams();
   const { data } = useSuspenseQuery(artistDetailQuery(artist));
+  const { isAdmin, run } = useAdmin();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function saveDescription() {
+    setSaving(true);
+    try {
+      await run({ type: "setArtistDescription", slug: artist, description: draft.trim() || null });
+      setEditing(false);
+      toast.success("Kuvaus tallennettu.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Tallennus epäonnistui.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   if (!data.name) {
     return <PageShell title="Artistia ei löytynyt" back="/artistit"><p className="text-muted-foreground">Tätä artistia ei löytynyt.</p></PageShell>;
@@ -72,6 +89,30 @@ function ArtistPage() {
 
   return (
     <PageShell title={data.name} back="/artistit">
+      <section className="mb-8">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="text-2xl">Kuvaus</h2>
+          {isAdmin && !editing && (
+            <Button variant="outline" size="sm" onClick={() => { setDraft(data.description ?? ""); setEditing(true); }}>
+              <Pencil className="mr-2 h-4 w-4" /> Muokkaa
+            </Button>
+          )}
+        </div>
+        {editing ? (
+          <div className="space-y-3 rounded-xl border bg-card p-4">
+            <Textarea rows={5} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Kirjoita artistin kuvaus…" />
+            <div className="flex gap-2">
+              <Button size="sm" disabled={saving} onClick={saveDescription}>Tallenna</Button>
+              <Button size="sm" variant="outline" disabled={saving} onClick={() => setEditing(false)}>Peruuta</Button>
+            </div>
+          </div>
+        ) : data.description ? (
+          <p className="whitespace-pre-line rounded-xl border bg-card p-4 text-muted-foreground">{data.description}</p>
+        ) : (
+          <p className="text-muted-foreground">Artistilla ei ole vielä kuvausta.</p>
+        )}
+      </section>
+
       <section className="mb-8">
         <h2 className="mb-4 text-2xl">Tilastot</h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
