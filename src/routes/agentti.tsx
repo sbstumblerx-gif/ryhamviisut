@@ -109,6 +109,8 @@ function AgenttiPage() {
   }, [userId, setChatMessages]);
 
   const removeThread = useCallback(async (id: string) => {
+    const { error: messagesError } = await supabase.from("chat_messages").delete().eq("thread_id", id);
+    if (messagesError) { toast.error("Keskustelun viestejä ei voitu poistaa."); return; }
     const { error: deleteError } = await supabase.from("chat_threads").delete().eq("id", id);
     if (deleteError) { toast.error("Keskustelua ei voitu poistaa."); return; }
     setThreads((current) => current.filter((thread) => thread.id !== id));
