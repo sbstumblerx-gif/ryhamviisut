@@ -37,6 +37,7 @@ const action = z.discriminatedUnion("type", [
   }),
   z.object({ type: z.literal("deleteEntry"), id }),
   z.object({ type: z.literal("addJury"), section_id: id, name: z.string().trim().min(1).max(200) }),
+  z.object({ type: z.literal("setArtistDescription"), slug: z.string().trim().min(1).max(200), description: z.string().trim().max(5000).nullable() }),
   z.object({ type: z.literal("deleteJury"), id }),
   z.object({
     type: z.literal("setJuryVotes"),

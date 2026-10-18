@@ -99,6 +99,11 @@ export const artistDetailQuery = (artistSlug: string) =>
           })),
       );
       const name = appearances[0]?.artist ?? null;
-      return { name, appearances };
+      const { data: profile } = await supabase
+        .from("artist_profiles")
+        .select("description")
+        .eq("slug", artistSlug)
+        .maybeSingle();
+      return { name, appearances, description: profile?.description ?? null };
     },
   });
