@@ -43,7 +43,7 @@ export const Route = createFileRoute("/api/agent")({
         const openAIKey = process.env.OPENAI_API_KEY;
         if (!openAIKey) return jsonError("Agentin OpenAI API -avain puuttuu palvelimen asetuksista.", 503);
 
-        let supabase;
+        let supabase: ReturnType<typeof getServerClient>;
         try {
           supabase = getServerClient(token);
         } catch (error) {
@@ -136,27 +136,31 @@ export const Route = createFileRoute("/api/agent")({
               },
             }),
           },
+        });
+
+        return result.toUIMessageStreamResponse({
           onFinish: async ({ messages: completedMessages }) => {
-            const rows = completedMessages.map((message) => ({
-              id: message.id,
+            const latestUser = [...messages].reverse().find((message) => message.role === "user");
+            const latestAssistant = [...completedMessages].reverse().find((message) => message.role === "assistant");
+            const rows = [latestUser, latestAssistant].filter((message): message is UIMessage => Boolean(message)).map((message) => ({
               thread_id: body.threadId!,
               role: message.role,
               parts: message.parts as unknown as Json,
             }));
             if (rows.length) {
-              const { error } = await supabase.from("chat_messages").upsert(rows, { onConflict: "id" });
+              const { error } = await supabase.from("chat_messages").insert(rows);
               if (error) console.error("[Agentti] Viestien tallennus epäonnistui:", error.message);
             }
-            const title = (thread.title === "Uusi keskustelu" && firstUserText)
+            const title = thread.title === "Uusi keskustelu" && firstUserText
               ? firstUserText.slice(0, 72)
               : thread.title;
-            await supabase.from("chat_threads").update({ title, updated_at: new Date().toISOString() })
+            const { error: updateError } = await supabase.from("chat_threads")
+              .update({ title, updated_at: new Date().toISOString() })
               .eq("id", body.threadId!)
               .eq("user_id", authData.user.id);
+            if (updateError) console.error("[Agentti] Keskustelun päivitys epäonnistui:", updateError.message);
           },
         });
-
-        return result.toUIMessageStreamResponse();
       },
     },
   },
