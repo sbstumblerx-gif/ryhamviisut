@@ -4,11 +4,12 @@ import { Settings, Trophy, BarChart3, Mic2, Music, Vote, UserPlus, LogIn } from 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Ryhämviisut" },
-      { name: "description", content: "Ryhämviisujen kilpailut, tulokset, artistit ja musiikki." },
-      { property: "og:title", content: "Ryhämviisut" },
-      { property: "og:description", content: "Ryhämviisujen kilpailut, tulokset, artistit ja musiikki." },
+      { title: "Ryhämviisut – kilpailut, artistit ja musiikki" },
+      { name: "description", content: "Ryhämviisut kokoaa yhteen kilpailut, tulokset, artistit ja musiikin. Tutustu kilpailuihin, kuuntele kappaleita ja osallistu mukaan." },
+      { property: "og:title", content: "Ryhämviisut – kilpailut, artistit ja musiikki" },
+      { property: "og:description", content: "Ryhämviisut kokoaa yhteen kilpailut, tulokset, artistit ja musiikin. Tutustu kilpailuihin, kuuntele kappaleita ja osallistu mukaan." },
     ],
+    links: [{ rel: "canonical", href: "https://ryhamviisut.lovable.app/" }],
   }),
   component: Index,
 });
