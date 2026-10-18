@@ -112,6 +112,8 @@ export interface FileRoutesByFullPath {
   '/kilpailut/': typeof KilpailutIndexRoute
 }
 export interface FileRoutesByTo {
+  '/agentti': typeof AgenttiRoute
+  '/api/agent': typeof ApiAgentRoute
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/asetukset': typeof AsetuksetRoute
@@ -127,6 +129,8 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/agentti': typeof AgenttiRoute
+  '/api/agent': typeof ApiAgentRoute
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/asetukset': typeof AsetuksetRoute
