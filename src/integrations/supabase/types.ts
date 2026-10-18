@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      artist_profiles: {
+        Row: {
+          description: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          description?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          description?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       competitions: {
         Row: {
           created_at: string

@@ -37,6 +37,7 @@ const action = z.discriminatedUnion("type", [
   }),
   z.object({ type: z.literal("deleteEntry"), id }),
   z.object({ type: z.literal("addJury"), section_id: id, name: z.string().trim().min(1).max(200) }),
+  z.object({ type: z.literal("setArtistDescription"), slug: z.string().trim().min(1).max(200), description: z.string().trim().max(5000).nullable() }),
   z.object({ type: z.literal("deleteJury"), id }),
   z.object({
     type: z.literal("setJuryVotes"),
@@ -166,6 +167,14 @@ export const adminAction = createServerFn({ method: "POST" })
       case "addJury":
         check(await db.from("juries").insert({ section_id: a.section_id, name: a.name }));
         break;
+      case "setArtistDescription": {
+        if (a.description) {
+          check(await db.from("artist_profiles").upsert({ slug: a.slug, description: a.description, updated_at: new Date().toISOString() }));
+        } else {
+          check(await db.from("artist_profiles").delete().eq("slug", a.slug));
+        }
+        break;
+      }
       case "deleteJury":
         check(await db.from("juries").delete().eq("id", a.id));
         break;
