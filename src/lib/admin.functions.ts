@@ -167,6 +167,14 @@ export const adminAction = createServerFn({ method: "POST" })
       case "addJury":
         check(await db.from("juries").insert({ section_id: a.section_id, name: a.name }));
         break;
+      case "setArtistDescription": {
+        if (a.description) {
+          check(await db.from("artist_profiles").upsert({ slug: a.slug, description: a.description, updated_at: new Date().toISOString() }));
+        } else {
+          check(await db.from("artist_profiles").delete().eq("slug", a.slug));
+        }
+        break;
+      }
       case "deleteJury":
         check(await db.from("juries").delete().eq("id", a.id));
         break;
