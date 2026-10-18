@@ -4,7 +4,7 @@ import { PageShell } from "@/components/PageShell";
 import { ArtistLink } from "@/components/ArtistLink";
 import { artistDirectoryQuery } from "@/lib/queries";
 
-export const Route = createFileRoute("/artistit")({
+export const Route = createFileRoute("/artistit/")({
   head: () => ({
     meta: [
       { title: "Artistit – Ryhämviisut" },
