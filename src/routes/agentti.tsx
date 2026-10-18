@@ -74,7 +74,7 @@ function AgenttiPage() {
       const uid = session?.user.id ?? null;
       setUserId(uid);
       if (uid) void loadThreads(uid);
-      else { setThreads([]); setThreadId(null); setMessages([]); setChatMessages([]); }
+      else { setThreads([]); setThreadId(null); setChatMessages([]); }
     });
     return () => { active = false; listener.subscription.unsubscribe(); };
   }, [loadThreads, setChatMessages]);
