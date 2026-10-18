@@ -25,14 +25,12 @@ export const Route = createFileRoute("/agentti")({
 });
 
 function AgenttiPage() {
-  const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [loadingThreads, setLoadingThreads] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
-  const [messages, setMessages] = useState<UIMessage[]>([]);
   const [sending, setSending] = useState(false);
 
   const transport = useMemo(() => new DefaultChatTransport({
@@ -46,7 +44,6 @@ function AgenttiPage() {
 
   const { messages: chatMessages, sendMessage, setMessages: setChatMessages, status, error } = useChat({
     transport,
-    messages,
     onError: (err) => toast.error(err.message || "Agentti ei pystynyt vastaamaan."),
   });
 
@@ -79,10 +76,6 @@ function AgenttiPage() {
     return () => { active = false; listener.subscription.unsubscribe(); };
   }, [loadThreads, setChatMessages]);
 
-  useEffect(() => {
-    setMessages(chatMessages);
-  }, [chatMessages]);
-
   const openThread = useCallback(async (id: string) => {
     setThreadId(id);
     setLoadingMessages(true);
@@ -98,7 +91,6 @@ function AgenttiPage() {
       role: item.role as UIMessage["role"],
       parts: Array.isArray(item.parts) ? item.parts : [],
     })) as UIMessage[];
-    setMessages(loaded);
     setChatMessages(loaded);
     setLoadingMessages(false);
   }, [setChatMessages]);
@@ -113,7 +105,6 @@ function AgenttiPage() {
     }
     setThreads((current) => [data, ...current]);
     setThreadId(data.id);
-    setMessages([]);
     setChatMessages([]);
   }, [userId, setChatMessages]);
 
@@ -123,7 +114,6 @@ function AgenttiPage() {
     setThreads((current) => current.filter((thread) => thread.id !== id));
     if (threadId === id) {
       setThreadId(null);
-      setMessages([]);
       setChatMessages([]);
     }
     toast.success("Keskustelu poistettu.");
