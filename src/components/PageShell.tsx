@@ -10,6 +10,9 @@ export function PageShell({ title, children, back = "/" }: { title: string; chil
           ← Takaisin
         </Link>
         <div className="flex items-center gap-4">
+          <Link to="/agentti" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent">
+            <Bot className="h-4 w-4" /> Agentti
+          </Link>
           <Link to="/kirjaudu" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent">
             <LogIn className="h-4 w-4" /> Kirjaudu
           </Link>
