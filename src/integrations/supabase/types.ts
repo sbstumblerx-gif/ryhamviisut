@@ -42,6 +42,7 @@ export type Database = {
           section_id: string
           song: string | null
           status: string | null
+          video_url: string | null
         }
         Insert: {
           artist: string
@@ -52,6 +53,7 @@ export type Database = {
           section_id: string
           song?: string | null
           status?: string | null
+          video_url?: string | null
         }
         Update: {
           artist?: string
@@ -62,6 +64,7 @@ export type Database = {
           section_id?: string
           song?: string | null
           status?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {

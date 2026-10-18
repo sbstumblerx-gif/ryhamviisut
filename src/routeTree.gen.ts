@@ -12,12 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AanestaRouteImport } from './routes/aanesta'
 import { Route as ArtistitRouteImport } from './routes/artistit'
-import { Route as ArtistitArtistRouteImport } from './routes/artistit.$artist'
 import { Route as AsetuksetRouteImport } from './routes/asetukset'
 import { Route as KirjauduRouteImport } from './routes/kirjaudu'
 import { Route as MusiikkiRouteImport } from './routes/musiikki'
 import { Route as OsallistuRouteImport } from './routes/osallistu'
 import { Route as TilastotRouteImport } from './routes/tilastot'
+import { Route as ArtistitArtistRouteImport } from './routes/artistit.$artist'
 import { Route as KilpailutIndexRouteImport } from './routes/kilpailut.index'
 import { Route as KilpailutYearRouteImport } from './routes/kilpailut.$year'
 import { Route as OsioIdRouteImport } from './routes/osio.$id'
@@ -35,11 +35,6 @@ const AanestaRoute = AanestaRouteImport.update({
 const ArtistitRoute = ArtistitRouteImport.update({
   id: '/artistit',
   path: '/artistit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ArtistitArtistRoute = ArtistitArtistRouteImport.update({
-  id: '/artistit/$artist',
-  path: '/artistit/$artist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AsetuksetRoute = AsetuksetRouteImport.update({
@@ -67,6 +62,11 @@ const TilastotRoute = TilastotRouteImport.update({
   path: '/tilastot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArtistitArtistRoute = ArtistitArtistRouteImport.update({
+  id: '/$artist',
+  path: '/$artist',
+  getParentRoute: () => ArtistitRoute,
+} as any)
 const KilpailutIndexRoute = KilpailutIndexRouteImport.update({
   id: '/kilpailut/',
   path: '/kilpailut/',
@@ -86,13 +86,13 @@ const OsioIdRoute = OsioIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
-  '/artistit': typeof ArtistitRoute
-  '/artistit/$artist': typeof ArtistitArtistRoute
+  '/artistit': typeof ArtistitRouteWithChildren
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
+  '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
   '/osio/$id': typeof OsioIdRoute
   '/kilpailut/': typeof KilpailutIndexRoute
@@ -100,13 +100,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
-  '/artistit': typeof ArtistitRoute
-  '/artistit/$artist': typeof ArtistitArtistRoute
+  '/artistit': typeof ArtistitRouteWithChildren
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
+  '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
   '/osio/$id': typeof OsioIdRoute
   '/kilpailut': typeof KilpailutIndexRoute
@@ -115,13 +115,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
-  '/artistit': typeof ArtistitRoute
-  '/artistit/$artist': typeof ArtistitArtistRoute
+  '/artistit': typeof ArtistitRouteWithChildren
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
+  '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
   '/osio/$id': typeof OsioIdRoute
   '/kilpailut/': typeof KilpailutIndexRoute
@@ -132,12 +132,12 @@ export interface FileRouteTypes {
     | '/'
     | '/aanesta'
     | '/artistit'
-    | '/artistit/$artist'
     | '/asetukset'
     | '/kirjaudu'
     | '/musiikki'
     | '/osallistu'
     | '/tilastot'
+    | '/artistit/$artist'
     | '/kilpailut/$year'
     | '/osio/$id'
     | '/kilpailut/'
@@ -146,11 +146,12 @@ export interface FileRouteTypes {
     | '/'
     | '/aanesta'
     | '/artistit'
-    | '/artistit/$artist'
     | '/asetukset'
+    | '/kirjaudu'
     | '/musiikki'
     | '/osallistu'
     | '/tilastot'
+    | '/artistit/$artist'
     | '/kilpailut/$year'
     | '/osio/$id'
     | '/kilpailut'
@@ -159,11 +160,12 @@ export interface FileRouteTypes {
     | '/'
     | '/aanesta'
     | '/artistit'
-    | '/artistit/$artist'
     | '/asetukset'
+    | '/kirjaudu'
     | '/musiikki'
     | '/osallistu'
     | '/tilastot'
+    | '/artistit/$artist'
     | '/kilpailut/$year'
     | '/osio/$id'
     | '/kilpailut/'
@@ -172,8 +174,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AanestaRoute: typeof AanestaRoute
-  ArtistitRoute: typeof ArtistitRoute
-  ArtistitArtistRoute: typeof ArtistitArtistRoute
+  ArtistitRoute: typeof ArtistitRouteWithChildren
   AsetuksetRoute: typeof AsetuksetRoute
   KirjauduRoute: typeof KirjauduRoute
   MusiikkiRoute: typeof MusiikkiRoute
@@ -205,13 +206,6 @@ declare module '@tanstack/react-router' {
       path: '/artistit'
       fullPath: '/artistit'
       preLoaderRoute: typeof ArtistitRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/artistit/$artist': {
-      id: '/artistit/$artist'
-      path: '/artistit/$artist'
-      fullPath: '/artistit/$artist'
-      preLoaderRoute: typeof ArtistitArtistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/asetukset': {
@@ -249,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TilastotRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/artistit/$artist': {
+      id: '/artistit/$artist'
+      path: '/$artist'
+      fullPath: '/artistit/$artist'
+      preLoaderRoute: typeof ArtistitArtistRouteImport
+      parentRoute: typeof ArtistitRoute
+    }
     '/kilpailut/': {
       id: '/kilpailut/'
       path: '/kilpailut'
@@ -273,11 +274,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ArtistitRouteChildren {
+  ArtistitArtistRoute: typeof ArtistitArtistRoute
+}
+
+const ArtistitRouteChildren: ArtistitRouteChildren = {
+  ArtistitArtistRoute: ArtistitArtistRoute,
+}
+
+const ArtistitRouteWithChildren = ArtistitRoute._addFileChildren(
+  ArtistitRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AanestaRoute: AanestaRoute,
-  ArtistitRoute: ArtistitRoute,
-  ArtistitArtistRoute: ArtistitArtistRoute,
+  ArtistitRoute: ArtistitRouteWithChildren,
   AsetuksetRoute: AsetuksetRoute,
   KirjauduRoute: KirjauduRoute,
   MusiikkiRoute: MusiikkiRoute,
