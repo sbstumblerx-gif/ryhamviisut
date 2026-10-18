@@ -69,7 +69,7 @@ const rules = [
 ] as const;
 
 function ParticipatePage() {
-  const [showCompetitionForm, setShowCompetitionForm] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(40);
   const [form, setForm] = useState({
     name: "",
@@ -84,12 +84,12 @@ function ParticipatePage() {
   });
 
   useEffect(() => {
-    if (showCompetitionForm || secondsLeft <= 0) return;
+    if (!rulesOpen || secondsLeft <= 0) return;
     const timer = window.setInterval(() => {
       setSecondsLeft((seconds) => Math.max(0, seconds - 1));
     }, 1000);
     return () => window.clearInterval(timer);
-  }, [showCompetitionForm, secondsLeft]);
+  }, [rulesOpen, secondsLeft]);
 
   const updateField = (field: keyof typeof form, value: string | boolean) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -128,8 +128,8 @@ function ParticipatePage() {
               <button
                 type="button"
                 onClick={() => {
-                  setShowCompetitionForm(true);
-                  setSecondsLeft(0);
+                  setSecondsLeft(40);
+                  setRulesOpen(true);
                 }}
                 className="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
               >
@@ -140,7 +140,7 @@ function ParticipatePage() {
         ))}
       </div>
 
-      {showCompetitionForm && (
+      {rulesOpen && (
         <section className="mt-8 space-y-6 rounded-2xl border border-border bg-card p-5 sm:p-8" aria-labelledby="competition-rules-title">
           <div>
             <h2 id="competition-rules-title" className="text-3xl font-semibold">Osallistujan säännöt</h2>
@@ -163,7 +163,7 @@ function ParticipatePage() {
             <button
               type="button"
               disabled={secondsLeft > 0}
-              onClick={() => setShowCompetitionForm(false)}
+              onClick={() => setRulesOpen(false)}
               className="inline-flex items-center justify-center rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Jatka hakemukseen{secondsLeft > 0 ? ` (${secondsLeft} s)` : ""}
@@ -172,7 +172,7 @@ function ParticipatePage() {
         </section>
       )}
 
-      {!showCompetitionForm && secondsLeft === 0 && (
+      {!rulesOpen && secondsLeft === 0 && (
         <section className="mt-8 space-y-6 rounded-2xl border border-border bg-card p-5 sm:p-8" aria-labelledby="competition-form-title">
           <h2 id="competition-form-title" className="text-3xl font-semibold">Kilpailijahakemus</h2>
           <p className="text-muted-foreground">Täytä alla olevat tiedot huolellisesti. Hakemuksen lähettäminen ei vielä takaa osallistumispaikkaa.</p>
