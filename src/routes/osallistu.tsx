@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ClipboardList, Mic2, Music2, CheckCircle2, Clock3 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PageShell } from "@/components/PageShell";
+import { submitApplication, getApplicationReply } from "@/lib/application.functions";
 
 export const Route = createFileRoute("/osallistu")({
   head: () => ({
@@ -71,6 +72,12 @@ const rules = [
 function ParticipatePage() {
   const [rulesOpen, setRulesOpen] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(40);
+  const [contactEmail, setContactEmail] = useState("");
+  const [trackingToken, setTrackingToken] = useState("");
+  const [submittedToken, setSubmittedToken] = useState("");
+  const [replyLookup, setReplyLookup] = useState<{ applicant_name: string; admin_reply: string | null; replied_at: string | null; created_at: string } | null>(null);
+  const [lookupMessage, setLookupMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: "",
     artistName: "",
@@ -177,7 +184,34 @@ function ParticipatePage() {
         <section className="mt-8 space-y-6 rounded-2xl border border-border bg-card p-5 sm:p-8" aria-labelledby="competition-form-title">
           <h2 id="competition-form-title" className="text-3xl font-semibold">Kilpailijahakemus</h2>
           <p className="text-muted-foreground">Täytä alla olevat tiedot huolellisesti. Hakemuksen lähettäminen ei vielä takaa osallistumispaikkaa.</p>
-          <form className="space-y-5" onSubmit={(event) => { event.preventDefault(); window.alert("Hakemusta ei ole vielä lähetetty: verkkosivulle ei ole kytketty hakemusten vastaanottoa. Kopioi vastauksesi talteen ennen sivulta poistumista."); }}>
+          <form className="space-y-5" onSubmit={async (event) => {
+            event.preventDefault();
+            setSubmitting(true);
+            try {
+              const result = await submitApplication({
+                data: {
+                  applicationType: "kilpailija",
+                  applicantName: form.name,
+                  contactEmail,
+                  payload: {
+                    artistName: form.artistName,
+                    songTitle: form.songTitle,
+                    songLink: form.songLink,
+                    activeDuration: form.activeDuration,
+                    credits: form.credits,
+                    description: form.description,
+                    guardianConsent: form.guardianConsent,
+                    rulesAccepted: form.rulesAccepted,
+                  },
+                },
+              });
+              setSubmittedToken(result.trackingToken);
+            } catch (error) {
+              window.alert(error instanceof Error ? error.message : "Hakemuksen lähettäminen epäonnistui.");
+            } finally {
+              setSubmitting(false);
+            }
+          }}>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2 text-sm font-medium">Oma nimi / nimimerkki
                 <input required value={form.name} onChange={(event) => updateField("name", event.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-base" />
@@ -186,6 +220,10 @@ function ParticipatePage() {
                 <input required value={form.artistName} onChange={(event) => updateField("artistName", event.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-base" />
               </label>
             </div>
+            <label className="block space-y-2 text-sm font-medium">Sähköposti vastausta varten (suositeltu)
+              <input type="email" placeholder="sinä@example.com" value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-base" />
+              <span className="block font-normal text-muted-foreground">Voit seurata vastausta sivulla seurantakoodilla, vaikka et antaisi sähköpostia.</span>
+            </label>
             <label className="block space-y-2 text-sm font-medium">Kappaleen nimi
               <input required value={form.songTitle} onChange={(event) => updateField("songTitle", event.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-base" />
             </label>
@@ -210,11 +248,48 @@ function ParticipatePage() {
               <input required type="checkbox" checked={form.rulesAccepted} onChange={(event) => updateField("rulesAccepted", event.target.checked)} className="mt-1" />
               Vakuutan lukeneeni säännöt, hyväksyväni ne ja ymmärtäväni, että kappale sekä kilpailulähetys voidaan julkaista julkisesti.
             </label>
-            <button type="submit" className="inline-flex items-center justify-center rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90">Tarkista hakemus</button>
-            <p className="text-sm text-muted-foreground">Huomio: hakemusten lähetys ei ole vielä kytketty vastaanottavaan järjestelmään. Tämä lomake ei lähetä tietoja Ryhämille.</p>
+            <button type="submit" disabled={submitting} className="inline-flex items-center justify-center rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50">{submitting ? "Lähetetään…" : "Lähetä hakemus adminille"}</button>
+            {submittedToken && (
+              <div className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
+                <h3 className="text-lg font-semibold">Hakemus lähetetty!</h3>
+                <p className="text-sm">Tallenna tämä seurantakoodi. Sen avulla näet adminin vastauksen myöhemmin.</p>
+                <code className="block break-all rounded bg-background p-3 text-sm">{submittedToken}</code>
+                <button type="button" onClick={() => navigator.clipboard?.writeText(submittedToken)} className="rounded-md border border-input px-3 py-2 text-sm">Kopioi seurantakoodi</button>
+              </div>
+            )}
           </form>
         </section>
       )}
+      <section className="mt-8 space-y-4 rounded-2xl border border-border bg-card p-5 sm:p-8" aria-labelledby="application-reply-title">
+        <h2 id="application-reply-title" className="text-2xl font-semibold">Tarkista hakemus ja adminin vastaus</h2>
+        <form className="flex flex-col gap-3 sm:flex-row" onSubmit={async (event) => {
+          event.preventDefault();
+          setLookupMessage("");
+          setReplyLookup(null);
+          try {
+            const result = await getApplicationReply({ data: { trackingToken } });
+            setReplyLookup(result.application);
+          } catch (error) {
+            setLookupMessage(error instanceof Error ? error.message : "Hakemuksen haku epäonnistui.");
+          }
+        }}>
+          <input required minLength={50} maxLength={100} value={trackingToken} onChange={(event) => setTrackingToken(event.target.value)} placeholder="Liitä seurantakoodi tähän" className="min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-2 text-base" />
+          <button type="submit" className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground">Tarkista vastaus</button>
+        </form>
+        {lookupMessage && <p role="alert" className="text-sm text-destructive">{lookupMessage}</p>}
+        {replyLookup && (
+          <div className="space-y-2 rounded-lg bg-muted p-4">
+            <p className="text-sm text-muted-foreground">Hakemus vastaanotettu: {new Date(replyLookup.created_at).toLocaleString("fi-FI")}</p>
+            {replyLookup.admin_reply ? (
+              <>
+                <h3 className="font-semibold">Adminin vastaus</h3>
+                <p className="whitespace-pre-wrap">{replyLookup.admin_reply}</p>
+                {replyLookup.replied_at && <p className="text-xs text-muted-foreground">Vastattu {new Date(replyLookup.replied_at).toLocaleString("fi-FI")}</p>}
+              </>
+            ) : <p>Admin ei ole vielä vastannut tähän hakemukseen.</p>}
+          </div>
+        )}
+      </section>
     </PageShell>
   );
 }
