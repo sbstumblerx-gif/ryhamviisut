@@ -11,7 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AanestaRouteImport } from './routes/aanesta'
-import { Route as AsetuksetRouteImport } from './routes/asetukset'
+import { Route as AsetuksetRouteImport } from './routes/asetukset'\nimport { Route as AgenttiRouteImport } from './routes/agentti'\nimport { Route as ApiAgentRouteImport } from './routes/api.agent'
 import { Route as KirjauduRouteImport } from './routes/kirjaudu'
 import { Route as MusiikkiRouteImport } from './routes/musiikki'
 import { Route as OsallistuRouteImport } from './routes/osallistu'
@@ -32,7 +32,7 @@ const AanestaRoute = AanestaRouteImport.update({
   path: '/aanesta',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AsetuksetRoute = AsetuksetRouteImport.update({
+const AgenttiRoute = AgenttiRouteImport.update({\n  id: '/agentti',\n  path: '/agentti',\n  getParentRoute: () => rootRouteImport,\n} as any)\nconst ApiAgentRoute = ApiAgentRouteImport.update({\n  id: '/api/agent',\n  path: '/api/agent',\n  getParentRoute: () => rootRouteImport,\n} as any)\nconst AsetuksetRoute = AsetuksetRouteImport.update({
   id: '/asetukset',
   path: '/asetukset',
   getParentRoute: () => rootRouteImport,
@@ -86,7 +86,7 @@ const OsioIdRoute = OsioIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
-  '/asetukset': typeof AsetuksetRoute
+  '/agentti': typeof AgenttiRoute\n  '/api/agent': typeof ApiAgentRoute\n  '/agentti': typeof AgenttiRoute\n  '/api/agent': typeof ApiAgentRoute\n  '/agentti': typeof AgenttiRoute\n  '/api/agent': typeof ApiAgentRoute\n  '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
@@ -112,7 +112,7 @@ export interface FileRoutesByTo {
   '/kilpailut': typeof KilpailutIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
+  __root__: typeof rootRouteImport\n  '/agentti': typeof AgenttiRoute\n  '/api/agent': typeof ApiAgentRoute
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/asetukset': typeof AsetuksetRoute
@@ -174,7 +174,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AanestaRoute: typeof AanestaRoute
-  AsetuksetRoute: typeof AsetuksetRoute
+  AgenttiRoute: typeof AgenttiRoute\n  ApiAgentRoute: typeof ApiAgentRoute\n  AsetuksetRoute: typeof AsetuksetRoute
   KirjauduRoute: typeof KirjauduRoute
   MusiikkiRoute: typeof MusiikkiRoute
   OsallistuRoute: typeof OsallistuRoute
