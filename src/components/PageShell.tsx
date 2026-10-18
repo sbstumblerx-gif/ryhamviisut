@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Settings, LogIn } from "lucide-react";
+import { Settings, LogIn, Bot } from "lucide-react";
 
 export function PageShell({ title, children, back = "/" }: { title: string; children: ReactNode; back?: string }) {
   return (
