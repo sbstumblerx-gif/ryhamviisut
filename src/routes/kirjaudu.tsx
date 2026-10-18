@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { CheckCircle2, Chrome, LogIn, ShieldCheck, Apple, MessageCircle } from "lucide-react";
+import { CheckCircle2, Chrome, LogIn, ShieldCheck, Apple } from "lucide-react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 
 type Mode = "login" | "signup" | "reset" | "recovery";
 
@@ -87,15 +88,16 @@ function LoginPage() {
     }
   }
 
-  async function signInWith(provider: "google" | "discord" | "apple") {
+  async function signInWith(provider: "google" | "apple") {
     setBusy(true);
     setMessage("");
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: `${window.location.origin}/kirjaudu` },
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin,
       });
-      if (error) throw error;
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      toast.success("Kirjautuminen onnistui!");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Kirjautuminen ei onnistunut.");
       setBusy(false);
@@ -142,9 +144,6 @@ function LoginPage() {
               <div className="space-y-2">
                 <Button type="button" variant="outline" className="w-full" disabled={busy} onClick={() => signInWith("google")}>
                   <Chrome /> Jatka Googlella
-                </Button>
-                <Button type="button" variant="outline" className="w-full" disabled={busy} onClick={() => signInWith("discord")}>
-                  <MessageCircle /> Jatka Discordilla
                 </Button>
                 <Button type="button" variant="outline" className="w-full" disabled={busy} onClick={() => signInWith("apple")}>
                   <Apple /> Jatka Applella
