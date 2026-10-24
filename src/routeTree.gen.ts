@@ -11,13 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AanestaRouteImport } from './routes/aanesta'
-import { Route as AsetuksetRouteImport } from './routes/asetukset'
 import { Route as AgenttiRouteImport } from './routes/agentti'
-import { Route as ApiAgentRouteImport } from './routes/api.agent'
+import { Route as AsetuksetRouteImport } from './routes/asetukset'
 import { Route as KirjauduRouteImport } from './routes/kirjaudu'
 import { Route as MusiikkiRouteImport } from './routes/musiikki'
 import { Route as OsallistuRouteImport } from './routes/osallistu'
 import { Route as TilastotRouteImport } from './routes/tilastot'
+import { Route as ApiAgentRouteImport } from './routes/api.agent'
 import { Route as ArtistitIndexRouteImport } from './routes/artistit.index'
 import { Route as ArtistitArtistRouteImport } from './routes/artistit.$artist'
 import { Route as KilpailutIndexRouteImport } from './routes/kilpailut.index'
@@ -37,11 +37,6 @@ const AanestaRoute = AanestaRouteImport.update({
 const AgenttiRoute = AgenttiRouteImport.update({
   id: '/agentti',
   path: '/agentti',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAgentRoute = ApiAgentRouteImport.update({
-  id: '/api/agent',
-  path: '/api/agent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AsetuksetRoute = AsetuksetRouteImport.update({
@@ -67,6 +62,11 @@ const OsallistuRoute = OsallistuRouteImport.update({
 const TilastotRoute = TilastotRouteImport.update({
   id: '/tilastot',
   path: '/tilastot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentRoute = ApiAgentRouteImport.update({
+  id: '/api/agent',
+  path: '/api/agent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArtistitIndexRoute = ArtistitIndexRouteImport.update({
@@ -99,12 +99,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/agentti': typeof AgenttiRoute
-  '/api/agent': typeof ApiAgentRoute
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
+  '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
   '/osio/$id': typeof OsioIdRoute
@@ -112,15 +112,15 @@ export interface FileRoutesByFullPath {
   '/kilpailut/': typeof KilpailutIndexRoute
 }
 export interface FileRoutesByTo {
-  '/agentti': typeof AgenttiRoute
-  '/api/agent': typeof ApiAgentRoute
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
+  '/agentti': typeof AgenttiRoute
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
+  '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
   '/osio/$id': typeof OsioIdRoute
@@ -129,15 +129,15 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/agentti': typeof AgenttiRoute
-  '/api/agent': typeof ApiAgentRoute
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
+  '/agentti': typeof AgenttiRoute
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
+  '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
   '/osio/$id': typeof OsioIdRoute
@@ -147,15 +147,15 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/agentti'
-    | '/api/agent'
     | '/'
     | '/aanesta'
+    | '/agentti'
     | '/asetukset'
     | '/kirjaudu'
     | '/musiikki'
     | '/osallistu'
     | '/tilastot'
+    | '/api/agent'
     | '/artistit/$artist'
     | '/kilpailut/$year'
     | '/osio/$id'
@@ -163,15 +163,15 @@ export interface FileRouteTypes {
     | '/kilpailut/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/agentti'
-    | '/api/agent'
     | '/'
     | '/aanesta'
+    | '/agentti'
     | '/asetukset'
     | '/kirjaudu'
     | '/musiikki'
     | '/osallistu'
     | '/tilastot'
+    | '/api/agent'
     | '/artistit/$artist'
     | '/kilpailut/$year'
     | '/osio/$id'
@@ -179,15 +179,15 @@ export interface FileRouteTypes {
     | '/kilpailut'
   id:
     | '__root__'
-    | '/agentti'
-    | '/api/agent'
     | '/'
     | '/aanesta'
+    | '/agentti'
     | '/asetukset'
     | '/kirjaudu'
     | '/musiikki'
     | '/osallistu'
     | '/tilastot'
+    | '/api/agent'
     | '/artistit/$artist'
     | '/kilpailut/$year'
     | '/osio/$id'
@@ -199,12 +199,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AanestaRoute: typeof AanestaRoute
   AgenttiRoute: typeof AgenttiRoute
-  ApiAgentRoute: typeof ApiAgentRoute
   AsetuksetRoute: typeof AsetuksetRoute
   KirjauduRoute: typeof KirjauduRoute
   MusiikkiRoute: typeof MusiikkiRoute
   OsallistuRoute: typeof OsallistuRoute
   TilastotRoute: typeof TilastotRoute
+  ApiAgentRoute: typeof ApiAgentRoute
   ArtistitArtistRoute: typeof ArtistitArtistRoute
   KilpailutYearRoute: typeof KilpailutYearRoute
   OsioIdRoute: typeof OsioIdRoute
@@ -233,13 +233,6 @@ declare module '@tanstack/react-router' {
       path: '/agentti'
       fullPath: '/agentti'
       preLoaderRoute: typeof AgenttiRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/agent': {
-      id: '/api/agent'
-      path: '/api/agent'
-      fullPath: '/api/agent'
-      preLoaderRoute: typeof ApiAgentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/asetukset': {
@@ -275,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: '/tilastot'
       fullPath: '/tilastot'
       preLoaderRoute: typeof TilastotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent': {
+      id: '/api/agent'
+      path: '/api/agent'
+      fullPath: '/api/agent'
+      preLoaderRoute: typeof ApiAgentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/artistit/': {
@@ -319,12 +319,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AanestaRoute: AanestaRoute,
   AgenttiRoute: AgenttiRoute,
-  ApiAgentRoute: ApiAgentRoute,
   AsetuksetRoute: AsetuksetRoute,
   KirjauduRoute: KirjauduRoute,
   MusiikkiRoute: MusiikkiRoute,
   OsallistuRoute: OsallistuRoute,
   TilastotRoute: TilastotRoute,
+  ApiAgentRoute: ApiAgentRoute,
   ArtistitArtistRoute: ArtistitArtistRoute,
   KilpailutYearRoute: KilpailutYearRoute,
   OsioIdRoute: OsioIdRoute,

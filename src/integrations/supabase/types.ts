@@ -258,7 +258,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      agent_schema_catalog: {
+        Args: never
+        Returns: {
+          columns: Json
+          table_name: string
+        }[]
+      }
     }
     Enums: {
       section_type: "artistijulkistus" | "esittely" | "karsinta" | "finaali"

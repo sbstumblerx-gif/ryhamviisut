@@ -10,6 +10,17 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import { Shimmer } from "@/components/ai-elements/shimmer";
+import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput, type ToolPart } from "@/components/ai-elements/tool";
+
+const toolTitles: Record<string, string> = {
+  list_tables: "Tietokannan taulut",
+  read_table: "Taulun luku",
+  competitions: "Kilpailuvuodet",
+  sections: "Osiot",
+  artists: "Artistit",
+  points: "Pisteet",
+  juries: "Raadit",
+};
 
 type Thread = { id: string; title: string; updated_at: string };
 type StoredMessage = { id: string; role: string; parts: unknown };
@@ -19,6 +30,10 @@ export const Route = createFileRoute("/agentti")({
     meta: [
       { title: "Agentti – Ryhämviisut" },
       { name: "description", content: "Kysy Ryhämviisujen kilpailuista, artisteista ja pisteistä." },
+      { property: "og:title", content: "Agentti – Ryhämviisut" },
+      { property: "og:description", content: "Ryhämviisujen tekoälyavustaja hakee tietoa ja tarkistaa faktoja sarjasta." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AgenttiPage,
@@ -187,13 +202,29 @@ function AgenttiPage() {
               {chatMessages.map((message) => (
                 <Message key={message.id} from={message.role} className="max-w-full">
                   <MessageContent className={message.role === "user" ? "rounded-lg bg-secondary px-4 py-3" : "w-full"}>
-                    {message.parts.map((part, index) => part.type === "text"
-                      ? <MessageResponse key={index}>{part.text}</MessageResponse>
-                      : null)}
+                    {message.parts.map((part, index) => {
+                      if (part.type === "text") return <MessageResponse key={index}>{part.text}</MessageResponse>;
+                      if (part.type.startsWith("tool-") || part.type === "dynamic-tool") {
+                        const toolPart = part as ToolPart;
+                        const name = toolPart.type === "dynamic-tool" ? toolPart.toolName : toolPart.type.slice(5);
+                        return (
+                          <Tool key={index} defaultOpen={false}>
+                            {toolPart.type === "dynamic-tool"
+                              ? <ToolHeader type="dynamic-tool" toolName={toolPart.toolName} state={toolPart.state} title={toolTitles[name] ?? name} />
+                              : <ToolHeader type={toolPart.type} state={toolPart.state} title={toolTitles[name] ?? name} />}
+                            <ToolContent>
+                              <ToolInput input={toolPart.input} />
+                              <ToolOutput output={toolPart.output} errorText={toolPart.errorText} />
+                            </ToolContent>
+                          </Tool>
+                        );
+                      }
+                      return null;
+                    })}
                   </MessageContent>
                 </Message>
               ))}
-              {status === "streaming" && <div className="text-sm text-muted-foreground"><Shimmer>Agentti miettii…</Shimmer></div>}
+              {(status === "submitted" || status === "streaming") && <div className="text-sm text-muted-foreground"><Shimmer>Agentti miettii…</Shimmer></div>}
               {error && <p role="alert" className="text-sm text-destructive">{error.message}</p>}
             </div>
             <form onSubmit={submitMessage} className="flex gap-2 border-t p-3">
