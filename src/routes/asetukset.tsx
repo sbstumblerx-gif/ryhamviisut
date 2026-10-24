@@ -1,10 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { PageShell } from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAdmin } from "@/lib/admin";
+import { AnnouncementEditor } from "@/components/AnnouncementEditor";
+import { readAnnouncements } from "@/lib/announcements.functions";
 
 export const Route = createFileRoute("/asetukset")({
   head: () => ({
@@ -25,6 +29,13 @@ function Settings() {
   const [applications, setApplications] = useState<any[]>([]);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [inboxLoading, setInboxLoading] = useState(false);
+  const [announcementEditor, setAnnouncementEditor] = useState<{ id: string; title: string; content: unknown } | null | false>(false);
+  const loadAnnouncements = useServerFn(readAnnouncements);
+  const { data: announcementData, isLoading: announcementsLoading, refetch: refetchAnnouncements } = useQuery({
+    queryKey: ["announcements"],
+    queryFn: () => loadAnnouncements(),
+    enabled: isAdmin,
+  });
 
   async function loadApplications() {
     setInboxLoading(true);
@@ -95,6 +106,50 @@ function Settings() {
                     </label>
                     <Button type="submit">Tallenna ja lähetä vastaus</Button>
                   </form>
+                </article>
+              ))}
+            </section>
+            <section className="mt-8 space-y-4 border-t border-border pt-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-2xl font-semibold">Tiedotteet</h2>
+                  <p className="text-sm text-muted-foreground">Luo ja muokkaa julkisia tiedotteita. Muutokset näkyvät Tiedotteet-sivulla.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" onClick={() => void refetchAnnouncements()} disabled={announcementsLoading}>Päivitä</Button>
+                  <Button onClick={() => setAnnouncementEditor({ id: "", title: "", content: { type: "doc", content: [{ type: "paragraph" }] } })}>Uusi tiedote</Button>
+                </div>
+              </div>
+              {announcementEditor !== false && (
+                <AnnouncementEditor
+                  initial={announcementEditor || undefined}
+                  images={announcementData?.images ?? {}}
+                  onClose={() => setAnnouncementEditor(false)}
+                />
+              )}
+              {announcementsLoading ? (
+                <p className="text-sm text-muted-foreground">Ladataan tiedotteita…</p>
+              ) : !announcementData?.announcements.length ? (
+                <p className="rounded-lg border border-border p-4 text-sm text-muted-foreground">Tiedotteita ei ole vielä julkaistu.</p>
+              ) : announcementData.announcements.map((announcement) => (
+                <article key={announcement.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-4">
+                  <div className="min-w-0">
+                    <h3 className="break-words font-semibold">{announcement.title}</h3>
+                    <p className="text-xs text-muted-foreground">{new Date(announcement.updated_at ?? announcement.created_at).toLocaleDateString("fi-FI")}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setAnnouncementEditor({ id: announcement.id, title: announcement.title, content: announcement.content })}>Muokkaa</Button>
+                    <Button variant="destructive" onClick={async () => {
+                      if (!window.confirm(`Poistetaanko tiedote ”${announcement.title}”?`)) return;
+                      try {
+                        await run({ type: "deleteAnnouncement", id: announcement.id });
+                        toast.success("Tiedote poistettu.");
+                        await refetchAnnouncements();
+                      } catch (error) {
+                        toast.error(error instanceof Error ? error.message : "Tiedotteen poistaminen epäonnistui.");
+                      }
+                    }}>Poista</Button>
+                  </div>
                 </article>
               ))}
             </section>
