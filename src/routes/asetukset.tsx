@@ -117,7 +117,7 @@ function Settings() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button variant="outline" onClick={() => void refetchAnnouncements()} disabled={announcementsLoading}>Päivitä</Button>
-                  <Button onClick={() => setAnnouncementEditor({ id: "", title: "", content: { type: "doc", content: [{ type: "paragraph" }] } })}>Uusi tiedote</Button>
+                  <Button onClick={() => setAnnouncementEditor(null)}>Uusi tiedote</Button>
                 </div>
               </div>
               {announcementEditor !== false && (
