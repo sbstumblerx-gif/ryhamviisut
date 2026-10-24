@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
+import { createLovableAiGatewayRunIdFetch, getLovableAiGatewayRunId, withLovableAiGatewayRunIdHeader } from "@/lib/ai/run-id";
 import { z } from "zod";
 import type { Database, Json } from "@/integrations/supabase/types";
 
@@ -12,8 +13,8 @@ function jsonError(message: string, status: number) {
 }
 
 function getServerClient(accessToken: string) {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_PUBLISHABLE_KEY;
+  const url = process.env["SUPABASE_URL"];
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
   if (!url || !key) throw new Error("Supabase-palvelinasetukset puuttuvat.");
   return createClient<Database>(url, key, {
     global: { headers: { Authorization: `Bearer ${accessToken}` } },
@@ -40,8 +41,8 @@ export const Route = createFileRoute("/api/agent")({
         }
         if (body.messages.length > 80) return jsonError("Keskustelu on liian pitkä. Aloita uusi keskustelu.", 413);
 
-        const openAIKey = process.env.OPENAI_API_KEY;
-        if (!openAIKey) return jsonError("Agentin OpenAI API -avain puuttuu palvelimen asetuksista.", 503);
+        const lovableApiKey = process.env["LOVABLE_API_KEY"];
+        if (!lovableApiKey) return jsonError("Agentin tekoälyasetukset puuttuvat palvelimelta.", 503);
 
         let supabase: ReturnType<typeof getServerClient>;
         try {
@@ -61,7 +62,15 @@ export const Route = createFileRoute("/api/agent")({
           .maybeSingle();
         if (threadError || !thread) return jsonError("Keskustelua ei löytynyt tai sinulla ei ole siihen oikeutta.", 404);
 
-        const openai = createOpenAI({ apiKey: openAIKey });
+        const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(request));
+        const openai = createOpenAI({
+          baseURL: "https://ai.gateway.lovable.dev/v1",
+          apiKey: lovableApiKey,
+          headers: { "Lovable-API-Key": lovableApiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
+          fetch: runIdFetch.fetch,
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const anyDb = supabase as any;
         const messages = body.messages;
         const firstUserText = messages.find((message) => message.role === "user")?.parts
           .filter((part) => part.type === "text")
@@ -70,11 +79,52 @@ export const Route = createFileRoute("/api/agent")({
           .trim();
 
         const result = streamText({
-          model: openai("gpt-4o-mini"),
-          system: `Olet Ryhämviisujen Agentti. Vastaa suomeksi, ellei käyttäjä pyydä muuta. Autat käyttäjää ymmärtämään Ryhämviisujen kilpailuja, osioita, artisteja, kappaleita, pisteitä ja raateja. Käytä alla olevia tietokantatyökaluja faktatarkistukseen. Älä keksi puuttuvia tietoja. Tietokantatyökalut ovat vain lukemista varten; älä väitä muuttaneesi tietoja.`,
+          model: openai.responses("openai/gpt-6-astra"),
+          instructions: `Olet Ryhämviisujen Agentti, sarjan tiedonhakija ja faktantarkistaja. Vastaa suomeksi, ellei käyttäjä pyydä muuta. Autat käyttäjää löytämään tietoa Ryhämviisujen kilpailuista, osioista, artisteista, kappaleista, pisteistä, raadeista ja kaikesta muusta tietokantaan tallennetusta. Tarkista faktat aina työkaluilla ennen vastaamista. Jos erikoistyökalu ei riitä, käytä list_tables-työkalua nähdäksesi kaikki tietokannan taulut (myös uudet) ja read_table-työkalua niiden lukemiseen. Älä keksi puuttuvia tietoja: kerro selvästi, jos tietoa ei löydy. Kerro lyhyesti mihin tietoon vastauksesi perustuu. Työkalut ovat vain lukemista varten; älä väitä muuttaneesi tietoja.`,
+          abortSignal: request.signal,
+          providerOptions: {
+            openai: {
+              forceReasoning: true,
+              reasoningEffort: "medium",
+              reasoningSummary: "auto",
+              store: false,
+              include: ["reasoning.encrypted_content"],
+            },
+          },
           messages: await convertToModelMessages(messages),
-          stopWhen: stepCountIs(5),
+          stopWhen: stepCountIs(8),
           tools: {
+            list_tables: tool({
+              description: "Listaa kaikki tietokannan taulut sarakkeineen, myös myöhemmin lisätyt. Käytä tätä, kun tarvitset tietoa jota erikoistyökalut eivät kata.",
+              inputSchema: z.object({}),
+              execute: async () => {
+                const { data, error } = await supabase.rpc("agent_schema_catalog");
+                if (error) throw new Error("Taululistauksen haku epäonnistui.");
+                return data;
+              },
+            }),
+            read_table: tool({
+              description: "Lue rivejä mistä tahansa tietokannan taulusta (vain luku). Hae ensin taulujen nimet list_tables-työkalulla.",
+              inputSchema: z.object({
+                table: z.string().min(1).describe("Taulun nimi"),
+                columns: z.string().optional().describe("Pilkuilla erotetut sarakkeet, oletus kaikki"),
+                filters: z.array(z.object({ column: z.string(), value: z.union([z.string(), z.number(), z.boolean()]) })).optional().describe("Yhtäsuuruussuodattimet"),
+                search: z.object({ column: z.string(), text: z.string() }).optional().describe("Tekstihaku sarakkeesta (sisältää, kirjainkoosta riippumaton)"),
+                orderBy: z.string().optional(),
+                ascending: z.boolean().optional(),
+                limit: z.number().int().min(1).max(200).optional(),
+              }),
+              execute: async ({ table, columns, filters, search, orderBy, ascending, limit }) => {
+                if (!/^[a-z_][a-z0-9_]*$/i.test(table)) throw new Error("Virheellinen taulun nimi.");
+                let query = anyDb.from(table).select(columns || "*").limit(limit ?? 50);
+                for (const filter of filters ?? []) query = query.eq(filter.column, filter.value);
+                if (search) query = query.ilike(search.column, `%${search.text.replace(/[%_]/g, "")}%`);
+                if (orderBy) query = query.order(orderBy, { ascending: ascending ?? true });
+                const { data, error } = await query;
+                if (error) throw new Error(`Taulun ${table} luku epäonnistui: ${error.message}`);
+                return data;
+              },
+            }),
             competitions: tool({
               description: "Hae Ryhämviisujen kilpailuvuodet.",
               inputSchema: z.object({ year: z.number().int().optional().describe("Valinnainen kilpailuvuosi") }),
@@ -138,7 +188,16 @@ export const Route = createFileRoute("/api/agent")({
           },
         });
 
-        return result.toUIMessageStreamResponse({
+        return withLovableAiGatewayRunIdHeader(result.toUIMessageStreamResponse({
+          sendReasoning: true,
+          onError: (error) => {
+            console.error("[Agentti] Virhe:", error);
+            const status = (error as { statusCode?: number })?.statusCode;
+            if (status === 429) return "Agentilla on nyt ruuhkaa. Yritä hetken päästä uudelleen.";
+            if (status === 402) return "Tekoälykrediitit ovat loppuneet. Lisää krediittejä työtilan asetuksista.";
+            if (status === 403) return "Tekoälyn käyttö on estetty tämän työtilan asetuksissa.";
+            return "Agentti ei pystynyt vastaamaan. Yritä uudelleen.";
+          },
           onFinish: async ({ messages: completedMessages }) => {
             const latestUser = [...messages].reverse().find((message) => message.role === "user");
             const latestAssistant = [...completedMessages].reverse().find((message) => message.role === "assistant");
@@ -160,7 +219,7 @@ export const Route = createFileRoute("/api/agent")({
               .eq("user_id", authData.user.id);
             if (updateError) console.error("[Agentti] Keskustelun päivitys epäonnistui:", updateError.message);
           },
-        });
+        }), runIdFetch);
       },
     },
   },
