@@ -84,11 +84,13 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
       setUploading(true);
       try {
         const path = `${crypto.randomUUID()}.${ext}`;
-        const upload = await supabase.storage.from("announcement-images").upload(path, file, { contentType: file.type });
+        const ticket = await run({ type: "createAnnouncementUpload", path, contentType: file.type }) as { token?: string };
+        if (!ticket.token) throw new Error("Kuvan latauslinkin luominen epäonnistui.");
+        const upload = await supabase.storage.from("announcement-images").uploadToSignedUrl(path, ticket.token, file, { contentType: file.type });
         if (upload.error) throw upload.error;
-        const signed = await supabase.storage.from("announcement-images").createSignedUrl(path, 3600);
-        if (!signed.data) throw new Error("Kuvan lataaminen epäonnistui.");
-        editor.chain().focus().insertContent({ type: "image", attrs: { src: signed.data.signedUrl, storagePath: path, alt: file.name } }).run();
+        const preview = await run({ type: "getAnnouncementImageUrl", path }) as { signedUrl?: string };
+        if (!preview.signedUrl) throw new Error("Kuvan esikatselulinkin luominen epäonnistui.");
+        editor.chain().focus().insertContent({ type: "image", attrs: { src: preview.signedUrl, storagePath: path, alt: file.name } }).run();
       } catch { toast.error("Kuvan lisääminen epäonnistui."); } finally { setUploading(false); }
     }} />
     {uploading && <p role="status" className="mt-2 text-muted-foreground">Kuvaa lisätään…</p>}
