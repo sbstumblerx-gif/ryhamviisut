@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Settings, Trophy, BarChart3, Mic2, Music, Vote, UserPlus, LogIn, Bot } from "lucide-react";
+import { Settings, Trophy, BarChart3, Mic2, Music, Vote, UserPlus, LogIn, Bot, Megaphone } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,6 +21,7 @@ const items = [
   { to: "/musiikki", label: "Musiikki", icon: Music },
   { to: "/aanesta", label: "Äänestä", icon: Vote },
   { to: "/osallistu", label: "Osallistu", icon: UserPlus },
+  { to: "/tiedotteet", label: "Tiedotteet", icon: Megaphone },
 ] as const;
 
 function Index() {
