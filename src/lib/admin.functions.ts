@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { announcementInput } from "./announcements";
 
 const sectionType = z.enum(["artistijulkistus", "esittely", "karsinta", "finaali"]);
 const id = z.string().uuid();
@@ -7,6 +8,8 @@ const youtubeUrl = z.string().trim().max(500).nullable();
 
 const action = z.discriminatedUnion("type", [
   z.object({ type: z.literal("verify") }),
+  z.object({ type: z.literal("saveAnnouncement"), id: id.optional(), title: announcementInput.shape.title, content: announcementInput.shape.content }),
+  z.object({ type: z.literal("deleteAnnouncement"), id }),
   z.object({ type: z.literal("listApplications") }),
   z.object({ type: z.literal("replyApplication"), id, reply: z.string().trim().min(1).max(10000) }),
   z.object({ type: z.literal("listVotingEntries") }),
@@ -65,6 +68,16 @@ export const adminAction = createServerFn({ method: "POST" })
     switch (a.type) {
       case "verify":
         break;
+      case "saveAnnouncement": {
+        const patch = { title: a.title, content: a.content, updated_at: new Date().toISOString() };
+        if (a.id) check(await db.from("announcements").update(patch).eq("id", a.id));
+        else check(await db.from("announcements").insert({ ...patch, created_by: null }));
+        break;
+      }
+      case "deleteAnnouncement": {
+        check(await db.from("announcements").delete().eq("id", a.id));
+        break;
+      }
       case "listApplications": {
         const { data, error } = await db.from("applications").select("id, application_type, applicant_name, contact_email, payload, admin_reply, replied_at, created_at").order("created_at", { ascending: false }).limit(200);
         if (error) throw new Error(error.message);
