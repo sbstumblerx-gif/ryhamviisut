@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Settings, Trophy, BarChart3, Mic2, Music, Vote, UserPlus, LogIn } from "lucide-react";
+import { Settings, Trophy, BarChart3, Mic2, Music, Vote, UserPlus, LogIn, Bot } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,6 +45,10 @@ function Index() {
               <span className="font-display text-3xl tracking-wide">{label}</span>
             </Link>
           ))}
+          <Link to="/agentti" className="tile col-span-2 flex flex-col items-center gap-3 p-8 md:col-span-1 md:col-start-2">
+            <Bot className="h-8 w-8 text-primary" />
+            <span className="font-display text-3xl tracking-wide">Agentti</span>
+          </Link>
         </div>
       </div>
     </div>
