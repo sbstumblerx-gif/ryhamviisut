@@ -165,8 +165,8 @@ function Settings() {
                 await login(code);
                 toast.success("Admin-tila päällä");
                 setCode("");
-              } catch {
-                toast.error("Väärä koodi");
+              } catch (error) {
+                toast.error(error instanceof Error ? error.message : "Ylläpitoon kirjautuminen epäonnistui.");
               } finally {
                 setBusy(false);
               }
