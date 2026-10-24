@@ -17,6 +17,7 @@ import { Route as KirjauduRouteImport } from './routes/kirjaudu'
 import { Route as MusiikkiRouteImport } from './routes/musiikki'
 import { Route as OsallistuRouteImport } from './routes/osallistu'
 import { Route as TilastotRouteImport } from './routes/tilastot'
+import { Route as TiedotteetRouteImport } from './routes/tiedotteet'
 import { Route as ApiAgentRouteImport } from './routes/api.agent'
 import { Route as ArtistitIndexRouteImport } from './routes/artistit.index'
 import { Route as ArtistitArtistRouteImport } from './routes/artistit.$artist'
@@ -64,6 +65,11 @@ const TilastotRoute = TilastotRouteImport.update({
   path: '/tilastot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TiedotteetRoute = TiedotteetRouteImport.update({
+  id: '/tiedotteet',
+  path: '/tiedotteet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAgentRoute = ApiAgentRouteImport.update({
   id: '/api/agent',
   path: '/api/agent',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
+  '/tiedotteet': typeof TiedotteetRoute
   '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
@@ -204,6 +211,7 @@ export interface RootRouteChildren {
   MusiikkiRoute: typeof MusiikkiRoute
   OsallistuRoute: typeof OsallistuRoute
   TilastotRoute: typeof TilastotRoute
+  TiedotteetRoute: typeof TiedotteetRoute
   ApiAgentRoute: typeof ApiAgentRoute
   ArtistitArtistRoute: typeof ArtistitArtistRoute
   KilpailutYearRoute: typeof KilpailutYearRoute
@@ -270,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TilastotRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tiedotteet': {
+      id: '/tiedotteet'
+      path: '/tiedotteet'
+      fullPath: '/tiedotteet'
+      preLoaderRoute: typeof TiedotteetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/agent': {
       id: '/api/agent'
       path: '/api/agent'
@@ -324,6 +339,7 @@ const rootRouteChildren: RootRouteChildren = {
   MusiikkiRoute: MusiikkiRoute,
   OsallistuRoute: OsallistuRoute,
   TilastotRoute: TilastotRoute,
+  TiedotteetRoute: TiedotteetRoute,
   ApiAgentRoute: ApiAgentRoute,
   ArtistitArtistRoute: ArtistitArtistRoute,
   KilpailutYearRoute: KilpailutYearRoute,
