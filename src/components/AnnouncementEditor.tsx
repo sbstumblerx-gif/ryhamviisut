@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, type JSONContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -27,11 +27,11 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
   const fileInput = useRef<HTMLInputElement>(null);
   const save = useServerFn(saveAnnouncement);
   const qc = useQueryClient();
-  const raw = initial?.content as { type: string; content?: { type: string; attrs?: Record<string, unknown> }[] } | undefined;
+  const raw = initial?.content as JSONContent | undefined;
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit.configure({ heading: false, blockquote: false, bulletList: false, orderedList: false, listItem: false, code: false, codeBlock: false, strike: false, underline: false, horizontalRule: false, link: { openOnClick: false, autolink: false, isAllowedUri: safeLink } }), StoredImage],
-    content: raw ? { ...raw, content: raw.content?.map(node => node.type === "image" ? { ...node, attrs: { ...node.attrs, storagePath: node.attrs?.src, src: images[String(node.attrs?.src)] ?? "" } } : node) } : { type: "doc", content: [{ type: "paragraph" }] },
+    content: raw ? { ...raw, content: raw.content?.map(node => node.type === "image" ? { ...node, attrs: { ...node.attrs, storagePath: node.attrs?.['src'], src: images[String(node.attrs?.['src'])] ?? "" } } : node) } : { type: "doc", content: [{ type: "paragraph" }] },
     editorProps: { attributes: { class: "announcement-body min-h-72 p-4 outline-none", "aria-label": "Tiedotteen teksti", role: "textbox" } },
   });
   const { data: targets = [] } = useQuery({
@@ -44,7 +44,7 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
       ]);
       if (entries.error || years.error || notices.error) throw new Error("Linkkikohteiden haku epäonnistui.");
       const result = [
-        ...[ ["Etusivu", "/"], ["Kilpailut", "/kilpailut"], ["Artistit", "/artistit"], ["Musiikki", "/musiikki"], ["Tilastot", "/tilastot"], ["Äänestä", "/aanesta"], ["Osallistu", "/osallistu"], ["Agentti", "/agentti"], ["Tiedotteet", "/tiedotteet"] ].map(([label, href]) => ({ label, href, category: "Sivu" })),
+        ...([ ["Etusivu", "/"], ["Kilpailut", "/kilpailut"], ["Artistit", "/artistit"], ["Musiikki", "/musiikki"], ["Tilastot", "/tilastot"], ["Äänestä", "/aanesta"], ["Osallistu", "/osallistu"], ["Agentti", "/agentti"], ["Tiedotteet", "/tiedotteet"] ] as [string, string][]).map(([label, href]) => ({ label, href, category: "Sivu" })),
         ...(years.data ?? []).map(row => ({ label: `Ryhämviisut ${row.year}`, href: `/kilpailut/${row.year}`, category: "Kilpailu" })),
         ...(notices.data ?? []).map(row => ({ label: row.title, href: `/tiedotteet/${row.id}`, category: "Tiedote" })),
       ];
@@ -70,7 +70,7 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
         <Button variant="ghost" size="icon" title="Lisää linkki" aria-label="Lisää linkki" disabled={!editor} onMouseDown={e => e.preventDefault()} onClick={() => {
           if (!editor || editor.state.selection.empty) { toast.error("Valitse ensin linkitettävä sana tai teksti."); return; }
           selection.current = { from: editor.state.selection.from, to: editor.state.selection.to };
-          setUrl(editor.getAttributes("link").href ?? ""); setLinkOpen(true);
+          setUrl(editor.getAttributes("link")['href'] ?? ""); setLinkOpen(true);
         }}><LinkIcon /></Button>
         <Button variant="ghost" size="icon" title="Poista linkki" aria-label="Poista linkki" onMouseDown={e => e.preventDefault()} onClick={() => editor?.chain().focus().unsetLink().run()}><Unlink /></Button>
         <Button variant="ghost" size="icon" title="Lisää kuva" aria-label="Lisää kuva" disabled={uploading} onClick={() => fileInput.current?.click()}><ImagePlus /></Button>
@@ -96,7 +96,7 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
     <div className="mt-4 flex gap-2"><Button disabled={busy || uploading || !editor} onClick={async () => {
       if (!editor) return;
       const json = editor.getJSON();
-      const content = { ...json, content: json.content?.map(node => node.type === "image" ? { ...node, attrs: { ...node.attrs, src: node.attrs?.storagePath, storagePath: undefined } } : node) };
+      const content = { ...json, content: json.content?.map(node => node.type === "image" ? { ...node, attrs: { ...node.attrs, src: node.attrs?.['storagePath'], storagePath: undefined } } : node) };
       const parsed = announcementInput.safeParse({ id: initial?.id, title, content });
       if (!parsed.success) { toast.error("Tarkista otsikko, teksti ja linkit."); return; }
       setBusy(true);
