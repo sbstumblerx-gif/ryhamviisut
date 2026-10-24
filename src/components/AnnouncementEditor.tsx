@@ -45,7 +45,7 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
       const result = [
         ...([ ["Etusivu", "/"], ["Kilpailut", "/kilpailut"], ["Artistit", "/artistit"], ["Musiikki", "/musiikki"], ["Tilastot", "/tilastot"], ["Äänestä", "/aanesta"], ["Osallistu", "/osallistu"], ["Agentti", "/agentti"], ["Tiedotteet", "/tiedotteet"] ] as [string, string][]).map(([label, href]) => ({ label, href, category: "Sivu" })),
         ...(years.data ?? []).map(row => ({ label: `Ryhämviisut ${row.year}`, href: `/kilpailut/${row.year}`, category: "Kilpailu" })),
-        ...(notices.data ?? []).map(row => ({ label: row.title, href: `/tiedotteet/${row.id}`, category: "Tiedote" })),
+        ...(notices.data ?? []).map(row => ({ label: row.title, href: `/tiedotteet#${row.id}`, category: "Tiedote" })),
       ];
       for (const row of entries.data ?? []) {
         result.push({ label: row.artist, href: `/artistit/${encodeURIComponent(row.artist.trim().toLocaleLowerCase("fi-FI").replace(/\s+/g, "-"))}`, category: "Artisti" });
