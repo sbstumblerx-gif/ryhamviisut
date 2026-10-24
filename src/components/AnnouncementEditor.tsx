@@ -3,7 +3,6 @@ import { useEditor, EditorContent, type JSONContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { Bold, Italic, Link as LinkIcon, ImagePlus, Unlink, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { announcementInput, safeLink } from "@/lib/announcements";
-import { saveAnnouncement } from "@/lib/announcements.functions";
+import { useAdmin } from "@/lib/admin";
 
 const StoredImage = Image.extend({ addAttributes() { return { ...this.parent?.(), storagePath: { default: null } }; } });
 
@@ -25,7 +24,7 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
   const [uploading, setUploading] = useState(false);
   const selection = useRef({ from: 0, to: 0 });
   const fileInput = useRef<HTMLInputElement>(null);
-  const save = useServerFn(saveAnnouncement);
+  const { run } = useAdmin();
   const qc = useQueryClient();
   const raw = initial?.content as JSONContent | undefined;
   const editor = useEditor({
@@ -100,7 +99,7 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
       const parsed = announcementInput.safeParse({ id: initial?.id, title, content });
       if (!parsed.success) { toast.error("Tarkista otsikko, teksti ja linkit."); return; }
       setBusy(true);
-      try { await save({ data: parsed.data }); await qc.invalidateQueries({ queryKey: ["announcements"] }); toast.success("Tiedote julkaistu."); onClose(); }
+      try { await run({ type: "saveAnnouncement", ...parsed.data }); await qc.invalidateQueries({ queryKey: ["announcements"] }); toast.success("Tiedote julkaistu."); onClose(); }
       catch { toast.error("Tallennus epäonnistui. Tarkista ylläpito-oikeutesi."); } finally { setBusy(false); }
     }}><Save />{busy ? "Tallennetaan…" : initial ? "Tallenna muutokset" : "Julkaise tiedote"}</Button><Button variant="outline" onClick={onClose}>Peruuta</Button></div>
     <Dialog open={linkOpen} onOpenChange={setLinkOpen}><DialogContent aria-describedby={undefined} className="max-h-[85vh] w-[calc(100%-2rem)] overflow-y-auto"><DialogTitle>Valitse linkin kohde</DialogTitle>
