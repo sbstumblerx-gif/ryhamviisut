@@ -1,0 +1,3 @@
+- [ ] Add public announcements and home button.
+- [ ] Add account-based admin editor, searchable links, bold, italic and images.
+- [ ] Verify publishing, public reading and access restrictions.

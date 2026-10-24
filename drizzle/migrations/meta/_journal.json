@@ -29,6 +29,13 @@
       "when": 1792850075398,
       "tag": "0003_agent_schema_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792850596038,
+      "tag": "0004_announcements_and_admin_roles",
+      "breakpoints": true
     }
   ]
 }
