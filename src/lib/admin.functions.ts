@@ -10,6 +10,8 @@ const action = z.discriminatedUnion("type", [
   z.object({ type: z.literal("verify") }),
   z.object({ type: z.literal("saveAnnouncement"), id: id.optional(), title: announcementInput.shape.title, content: announcementInput.shape.content }),
   z.object({ type: z.literal("deleteAnnouncement"), id }),
+  z.object({ type: z.literal("createAnnouncementUpload"), path: z.string().regex(/^[a-f0-9-]+\\.(png|jpg|webp|gif)$/), contentType: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]) }),
+  z.object({ type: z.literal("getAnnouncementImageUrl"), path: z.string().regex(/^[a-f0-9-]+\\.(png|jpg|webp|gif)$/) }),
   z.object({ type: z.literal("listApplications") }),
   z.object({ type: z.literal("replyApplication"), id, reply: z.string().trim().min(1).max(10000) }),
   z.object({ type: z.literal("listVotingEntries") }),
@@ -58,7 +60,7 @@ const input = z.object({ code: z.string().max(200), action });
 export const adminAction = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => input.parse(d))
   .handler(async ({ data }) => {
-    if (data.code !== "Valkkuonsöpö321") throw new Error("Väärä koodi");
+    if (!process.env.ADMIN_ACCESS_CODE || data.code !== process.env.ADMIN_ACCESS_CODE) throw new Error("Ylläpidon pääsykoodia ei ole määritetty tai se on väärä.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const db = supabaseAdmin as any;
     const a = data.action;
@@ -77,6 +79,16 @@ export const adminAction = createServerFn({ method: "POST" })
       case "deleteAnnouncement": {
         check(await db.from("announcements").delete().eq("id", a.id));
         break;
+      }
+      case "createAnnouncementUpload": {
+        const { data, error } = await db.storage.from("announcement-images").createSignedUploadUrl(a.path);
+        if (error || !data?.token) throw new Error("Kuvan latauslinkin luominen epäonnistui.");
+        return { ok: true, token: data.token };
+      }
+      case "getAnnouncementImageUrl": {
+        const { data, error } = await db.storage.from("announcement-images").createSignedUrl(a.path, 3600);
+        if (error || !data?.signedUrl) throw new Error("Kuvan esikatselulinkin luominen epäonnistui.");
+        return { ok: true, signedUrl: data.signedUrl };
       }
       case "listApplications": {
         const { data, error } = await db.from("applications").select("id, application_type, applicant_name, contact_email, payload, admin_reply, replied_at, created_at").order("created_at", { ascending: false }).limit(200);
