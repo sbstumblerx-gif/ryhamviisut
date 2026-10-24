@@ -145,6 +145,7 @@ export interface FileRoutesById {
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
+  '/tiedotteet': typeof TiedotteetRoute
   '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
