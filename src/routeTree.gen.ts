@@ -127,6 +127,7 @@ export interface FileRoutesByTo {
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/tilastot': typeof TilastotRoute
+  '/tiedotteet': typeof TiedotteetRoute
   '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
@@ -162,6 +163,7 @@ export interface FileRouteTypes {
     | '/musiikki'
     | '/osallistu'
     | '/tilastot'
+    | '/tiedotteet'
     | '/api/agent'
     | '/artistit/$artist'
     | '/kilpailut/$year'
@@ -276,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/tilastot'
       fullPath: '/tilastot'
       preLoaderRoute: typeof TilastotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tiedotteet': {
+      id: '/tiedotteet'
+      path: '/tiedotteet'
+      fullPath: '/tiedotteet'
+      preLoaderRoute: typeof TiedotteetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tiedotteet': {
