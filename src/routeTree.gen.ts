@@ -290,13 +290,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TiedotteetRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tiedotteet': {
-      id: '/tiedotteet'
-      path: '/tiedotteet'
-      fullPath: '/tiedotteet'
-      preLoaderRoute: typeof TiedotteetRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/agent': {
       id: '/api/agent'
       path: '/api/agent'
