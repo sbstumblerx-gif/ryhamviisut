@@ -45,7 +45,7 @@ function Index() {
               <span className="font-display text-3xl tracking-wide">{label}</span>
             </Link>
           ))}
-          <Link to="/agentti" className="tile col-span-2 flex flex-col items-center gap-3 p-8 md:col-span-3">
+          <Link to="/agentti" className="tile col-span-2 flex flex-col items-center gap-3 p-8 md:col-span-1 md:col-start-2">
             <Bot className="h-8 w-8 text-primary" />
             <span className="font-display text-3xl tracking-wide">Agentti</span>
           </Link>
