@@ -122,6 +122,7 @@ function Settings() {
               </div>
               {announcementEditor !== false && (
                 <AnnouncementEditor
+                  key={announcementEditor ? announcementEditor.id : "new"}
                   initial={announcementEditor || undefined}
                   images={announcementData?.images ?? {}}
                   onClose={() => setAnnouncementEditor(false)}
