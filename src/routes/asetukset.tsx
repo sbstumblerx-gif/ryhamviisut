@@ -23,9 +23,7 @@ export const Route = createFileRoute("/asetukset")({
 });
 
 function Settings() {
-  const { isAdmin, login, logout, run } = useAdmin();
-  const [code, setCode] = useState("");
-  const [busy, setBusy] = useState(false);
+  const { isAdmin, adminLoading, isSignedIn, run } = useAdmin();
   const [applications, setApplications] = useState<any[]>([]);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [inboxLoading, setInboxLoading] = useState(false);

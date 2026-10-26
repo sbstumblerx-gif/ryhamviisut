@@ -1,41 +1,39 @@
-import { useEffect, useState, useCallback } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { adminAction, type AdminActionInput } from "./admin.functions";
 
-const KEY = "rv-admin-code";
-const listeners = new Set<() => void>();
-
 export function useAdmin() {
-  const [code, setCode] = useState<string | null>(null);
   const qc = useQueryClient();
-  useEffect(() => {
-    const sync = () => setCode(localStorage.getItem(KEY));
-    sync();
-    listeners.add(sync);
-    return () => void listeners.delete(sync);
-  }, []);
-
-  const login = useCallback(async (c: string) => {
-    await adminAction({ data: { code: c, action: { type: "verify" } } });
-    localStorage.setItem(KEY, c);
-    listeners.forEach((l) => l());
-  }, []);
-  const logout = useCallback(() => {
-    localStorage.removeItem(KEY);
-    listeners.forEach((l) => l());
-  }, []);
+  const { data: session } = useQuery({
+    queryKey: ["auth-session"],
+    queryFn: async () => (await supabase.auth.getSession()).data.session,
+    staleTime: 60000,
+  });
+  const { data: isAdmin = false, isLoading } = useQuery({
+    queryKey: ["is-admin", session?.user.id],
+    enabled: !!session,
+    queryFn: async () => {
+      try {
+        await adminAction({ data: { type: "verify" } });
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    staleTime: 60000,
+  });
 
   const run = useCallback(
     async (action: AdminActionInput) => {
-      if (!code) throw new Error("Kirjaudu ensin ylläpitäjänä.");
-      const result = await adminAction({ data: { code, action } });
+      const result = await adminAction({ data: action });
       await qc.invalidateQueries();
       return result;
     },
-    [code, qc],
+    [qc],
   );
 
-  return { isAdmin: !!code, login, logout, run };
+  return { isAdmin, adminLoading: !!session && isLoading, isSignedIn: !!session, run };
 }
 
 export function youtubeEmbed(url: string | null | undefined) {
