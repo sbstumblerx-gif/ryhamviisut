@@ -60,7 +60,7 @@ const input = z.object({ code: z.string().max(200), action });
 export const adminAction = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => input.parse(d))
   .handler(async ({ data }) => {
-    if (!process.env.ADMIN_ACCESS_CODE || data.code !== process.env.ADMIN_ACCESS_CODE) throw new Error("Ylläpidon pääsykoodia ei ole määritetty tai se on väärä.");
+    if (!process.env['ADMIN_ACCESS_CODE'] || data.code !== process.env['ADMIN_ACCESS_CODE']) throw new Error("Ylläpidon pääsykoodia ei ole määritetty tai se on väärä.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const db = supabaseAdmin as any;
     const a = data.action;
