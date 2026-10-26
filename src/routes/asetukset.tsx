@@ -153,26 +153,16 @@ function Settings() {
             </section>
           </div>
         ) : (
-          <form
-            className="space-y-3"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setBusy(true);
-              try {
-                await login(code);
-                toast.success("Admin-tila päällä");
-                setCode("");
-              } catch (error) {
-                toast.error(error instanceof Error ? error.message : "Ylläpitoon kirjautuminen epäonnistui.");
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            <label className="text-sm text-muted-foreground">Koodi</label>
-            <Input type="password" value={code} onChange={(e) => setCode(e.target.value)} />
-            <Button type="submit" disabled={busy || !code}>Vahvista</Button>
-          </form>
+          <div className="space-y-3">
+            {adminLoading ? (
+              <p className="text-sm text-muted-foreground">Tarkistetaan oikeuksia…</p>
+            ) : isSignedIn ? (
+              <p className="text-sm text-muted-foreground">Tililläsi ei ole ylläpito-oikeutta.</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">Kirjaudu sisään ylläpitäjän tilillä nähdäksesi asetukset.</p>
+            )}
+            <Button variant="outline" onClick={() => { window.location.href = "/kirjaudu"; }}>Kirjaudu</Button>
+          </div>
         )}
       </div>
     </PageShell>
