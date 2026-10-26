@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { announcementInput } from "./announcements";
 
 const sectionType = z.enum(["artistijulkistus", "esittely", "karsinta", "finaali"]);
@@ -55,15 +56,15 @@ const action = z.discriminatedUnion("type", [
 
 export type AdminActionInput = z.infer<typeof action>;
 
-const input = z.object({ code: z.string().max(200), action });
-
 export const adminAction = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => input.parse(d))
-  .handler(async ({ data }) => {
-    if (!process.env['ADMIN_ACCESS_CODE'] || data.code !== process.env['ADMIN_ACCESS_CODE']) throw new Error("Ylläpidon pääsykoodia ei ole määritetty tai se on väärä.");
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => action.parse(d))
+  .handler(async ({ data, context }) => {
+    const role = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (role.error || !role.data) throw new Error("Tarvitset ylläpito-oikeuden.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const db = supabaseAdmin as any;
-    const a = data.action;
+    const a = data;
     const check = (r: { error: { message: string } | null }) => {
       if (r.error) throw new Error(r.error.message);
     };
