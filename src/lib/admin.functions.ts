@@ -74,7 +74,7 @@ export const adminAction = createServerFn({ method: "POST" })
       case "saveAnnouncement": {
         const patch = { title: a.title, content: a.content, updated_at: new Date().toISOString() };
         if (a.id) check(await db.from("announcements").update(patch).eq("id", a.id));
-        else check(await db.from("announcements").insert({ ...patch, created_by: null }));
+        else check(await db.from("announcements").insert({ ...patch, created_by: context.userId }));
         break;
       }
       case "deleteAnnouncement": {
