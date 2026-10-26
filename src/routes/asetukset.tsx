@@ -5,7 +5,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { PageShell } from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAdmin } from "@/lib/admin";
 import { AnnouncementEditor } from "@/components/AnnouncementEditor";
 import { readAnnouncements } from "@/lib/announcements.functions";
@@ -59,7 +58,6 @@ function Settings() {
             <p className="text-success">Olet kirjautunut adminina.</p>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={() => void loadApplications()} disabled={inboxLoading}>{inboxLoading ? "Päivitetään…" : "Päivitä inbox"}</Button>
-              <Button variant="secondary" onClick={logout}>Kirjaudu ulos</Button>
             </div>
             <section className="space-y-4 border-t border-border pt-5">
               <div>
@@ -154,26 +152,16 @@ function Settings() {
             </section>
           </div>
         ) : (
-          <form
-            className="space-y-3"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setBusy(true);
-              try {
-                await login(code);
-                toast.success("Admin-tila päällä");
-                setCode("");
-              } catch (error) {
-                toast.error(error instanceof Error ? error.message : "Ylläpitoon kirjautuminen epäonnistui.");
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            <label className="text-sm text-muted-foreground">Koodi</label>
-            <Input type="password" value={code} onChange={(e) => setCode(e.target.value)} />
-            <Button type="submit" disabled={busy || !code}>Vahvista</Button>
-          </form>
+          <div className="space-y-3">
+            {adminLoading ? (
+              <p className="text-sm text-muted-foreground">Tarkistetaan oikeuksia…</p>
+            ) : isSignedIn ? (
+              <p className="text-sm text-muted-foreground">Tililläsi ei ole ylläpito-oikeutta.</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">Kirjaudu sisään ylläpitäjän tilillä nähdäksesi asetukset.</p>
+            )}
+            <Button variant="outline" onClick={() => { window.location.href = "/kirjaudu"; }}>Kirjaudu</Button>
+          </div>
         )}
       </div>
     </PageShell>
