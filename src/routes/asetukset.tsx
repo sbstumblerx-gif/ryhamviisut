@@ -59,7 +59,6 @@ function Settings() {
             <p className="text-success">Olet kirjautunut adminina.</p>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={() => void loadApplications()} disabled={inboxLoading}>{inboxLoading ? "Päivitetään…" : "Päivitä inbox"}</Button>
-              <Button variant="secondary" onClick={logout}>Kirjaudu ulos</Button>
             </div>
             <section className="space-y-4 border-t border-border pt-5">
               <div>
