@@ -84,7 +84,7 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
       setUploading(true);
       try {
         const path = `${crypto.randomUUID()}.${ext}`;
-        const ticket = await run({ type: "createAnnouncementUpload", path, contentType: file.type }) as { token?: string };
+        const ticket = await run({ type: "createAnnouncementUpload", path, contentType: file.type as "image/png" | "image/jpeg" | "image/webp" | "image/gif" }) as { token?: string };
         if (!ticket.token) throw new Error("Kuvan latauslinkin luominen epäonnistui.");
         const upload = await supabase.storage.from("announcement-images").uploadToSignedUrl(path, ticket.token, file, { contentType: file.type as "image/png" | "image/jpeg" | "image/webp" | "image/gif" });
         if (upload.error) throw upload.error;
