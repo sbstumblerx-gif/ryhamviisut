@@ -5,7 +5,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { PageShell } from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAdmin } from "@/lib/admin";
 import { AnnouncementEditor } from "@/components/AnnouncementEditor";
 import { readAnnouncements } from "@/lib/announcements.functions";
