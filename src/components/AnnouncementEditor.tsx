@@ -14,7 +14,7 @@ import { useAdmin } from "@/lib/admin";
 
 const StoredImage = Image.extend({ addAttributes() { return { ...this.parent?.(), storagePath: { default: null } }; } });
 
-export function AnnouncementEditor({ initial, images, onClose }: { initial?: { id: string; title: string; content: unknown }; images: Record<string, string>; onClose: () => void }) {
+export function AnnouncementEditor({ initial, images, onClose }: { initial?: { id: string; title: string; content: unknown } | undefined; images: Record<string, string>; onClose: () => void }) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [linkOpen, setLinkOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -30,7 +30,7 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit.configure({ heading: false, blockquote: false, bulletList: false, orderedList: false, listItem: false, code: false, codeBlock: false, strike: false, underline: false, horizontalRule: false, link: { openOnClick: false, autolink: false, isAllowedUri: safeLink } }), StoredImage],
-    content: raw ? { ...raw, content: raw.content?.map(node => node.type === "image" ? { ...node, attrs: { ...node.attrs, storagePath: node.attrs?.['src'], src: images[String(node.attrs?.['src'])] ?? "" } } : node) } : { type: "doc", content: [{ type: "paragraph" }] },
+    content: (raw ? { ...raw, content: raw.content?.map(node => node.type === "image" ? { ...node, attrs: { ...node.attrs, storagePath: node.attrs?.['src'], src: images[String(node.attrs?.['src'])] ?? "" } } : node) } : { type: "doc", content: [{ type: "paragraph" }] }) as JSONContent,
     editorProps: { attributes: { class: "announcement-body min-h-72 p-4 outline-none", "aria-label": "Tiedotteen teksti", role: "textbox" } },
   });
   const { data: targets = [] } = useQuery({
@@ -84,9 +84,9 @@ export function AnnouncementEditor({ initial, images, onClose }: { initial?: { i
       setUploading(true);
       try {
         const path = `${crypto.randomUUID()}.${ext}`;
-        const ticket = await run({ type: "createAnnouncementUpload", path, contentType: file.type }) as { token?: string };
+        const ticket = await run({ type: "createAnnouncementUpload", path, contentType: file.type as "image/png" | "image/jpeg" | "image/webp" | "image/gif" }) as { token?: string };
         if (!ticket.token) throw new Error("Kuvan latauslinkin luominen epäonnistui.");
-        const upload = await supabase.storage.from("announcement-images").uploadToSignedUrl(path, ticket.token, file, { contentType: file.type });
+        const upload = await supabase.storage.from("announcement-images").uploadToSignedUrl(path, ticket.token, file, { contentType: file.type as "image/png" | "image/jpeg" | "image/webp" | "image/gif" });
         if (upload.error) throw upload.error;
         const preview = await run({ type: "getAnnouncementImageUrl", path }) as { signedUrl?: string };
         if (!preview.signedUrl) throw new Error("Kuvan esikatselulinkin luominen epäonnistui.");
