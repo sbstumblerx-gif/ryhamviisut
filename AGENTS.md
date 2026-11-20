@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
-- The Agentti chat (`src/routes/api.agent.ts`) calls the Lovable AI Gateway Responses API server-side and reads data only through the signed-in user's RLS-scoped client, so it can never see or change more than the user can.
+- The Agentti chat (`src/routes/api.agent.ts`) calls Google Gemini via its OpenAI-compatible endpoint with the GEMINI_API_KEY secret server-side and reads data only through the user RLS-scoped client.
 - The agent discovers tables via the `agent_schema_catalog()` SQL function plus a generic read-only `read_table` tool, so new tables become visible to it without code changes.
 - Announcements use validated Tiptap JSON rendered as React elements; writes require authenticated user_roles admin authorization, and private images are exposed through signed URLs only when referenced by a public announcement.
+- Artist claims, email blocks and admin audit log are service_role-only tables (no RLS policies); emails are read/changed only in `src/lib/artist-claims.functions.ts` after a has_role admin check, and claim status changes go through the atomic `admin_set_claim_status` SQL function.

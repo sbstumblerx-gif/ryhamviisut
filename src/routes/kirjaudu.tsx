@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { CheckCircle2, Chrome, LogIn, ShieldCheck, Apple } from "lucide-react";
 import { toast } from "sonner";
@@ -127,6 +127,7 @@ function LoginPage() {
             <CheckCircle2 className="mx-auto h-10 w-10 text-primary" />
             <h2 className="text-xl font-semibold">Olet kirjautunut sisään</h2>
             <p className="break-all text-sm text-muted-foreground">{userEmail}</p>
+            <Button asChild className="w-full" variant="secondary"><Link to="/artistiksi">Kirjaudu artistina</Link></Button>
             <Button className="w-full" variant="outline" disabled={busy} onClick={signOut}>Kirjaudu ulos</Button>
           </div>
         ) : (
@@ -148,6 +149,7 @@ function LoginPage() {
                 <Button type="button" variant="outline" className="w-full" disabled={busy} onClick={() => signInWith("apple")}>
                   <Apple /> Jatka Applella
                 </Button>
+                <Button asChild variant="secondary" className="w-full"><Link to="/artistiksi">Kirjaudu artistina</Link></Button>
               </div>
             )}
 

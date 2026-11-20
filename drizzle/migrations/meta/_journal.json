@@ -36,6 +36,13 @@
       "when": 1792850596038,
       "tag": "0004_announcements_and_admin_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795182638921,
+      "tag": "0005_artist_claims_and_email_blocks",
+      "breakpoints": true
     }
   ]
 }

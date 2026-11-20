@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AanestaRouteImport } from './routes/aanesta'
 import { Route as AgenttiRouteImport } from './routes/agentti'
+import { Route as ArtistiksiRouteImport } from './routes/artistiksi'
 import { Route as AsetuksetRouteImport } from './routes/asetukset'
 import { Route as KirjauduRouteImport } from './routes/kirjaudu'
 import { Route as MusiikkiRouteImport } from './routes/musiikki'
 import { Route as OsallistuRouteImport } from './routes/osallistu'
+import { Route as SahkopostitRouteImport } from './routes/sahkopostit'
 import { Route as TiedotteetRouteImport } from './routes/tiedotteet'
 import { Route as TilastotRouteImport } from './routes/tilastot'
 import { Route as ApiAgentRouteImport } from './routes/api.agent'
@@ -40,6 +42,11 @@ const AgenttiRoute = AgenttiRouteImport.update({
   path: '/agentti',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArtistiksiRoute = ArtistiksiRouteImport.update({
+  id: '/artistiksi',
+  path: '/artistiksi',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AsetuksetRoute = AsetuksetRouteImport.update({
   id: '/asetukset',
   path: '/asetukset',
@@ -58,6 +65,11 @@ const MusiikkiRoute = MusiikkiRouteImport.update({
 const OsallistuRoute = OsallistuRouteImport.update({
   id: '/osallistu',
   path: '/osallistu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SahkopostitRoute = SahkopostitRouteImport.update({
+  id: '/sahkopostit',
+  path: '/sahkopostit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TiedotteetRoute = TiedotteetRouteImport.update({
@@ -105,10 +117,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/agentti': typeof AgenttiRoute
+  '/artistiksi': typeof ArtistiksiRoute
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
+  '/sahkopostit': typeof SahkopostitRoute
   '/tiedotteet': typeof TiedotteetRoute
   '/tilastot': typeof TilastotRoute
   '/api/agent': typeof ApiAgentRoute
@@ -122,10 +136,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/agentti': typeof AgenttiRoute
+  '/artistiksi': typeof ArtistiksiRoute
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
+  '/sahkopostit': typeof SahkopostitRoute
   '/tiedotteet': typeof TiedotteetRoute
   '/tilastot': typeof TilastotRoute
   '/api/agent': typeof ApiAgentRoute
@@ -140,10 +156,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/aanesta': typeof AanestaRoute
   '/agentti': typeof AgenttiRoute
+  '/artistiksi': typeof ArtistiksiRoute
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
+  '/sahkopostit': typeof SahkopostitRoute
   '/tiedotteet': typeof TiedotteetRoute
   '/tilastot': typeof TilastotRoute
   '/api/agent': typeof ApiAgentRoute
@@ -159,10 +177,12 @@ export interface FileRouteTypes {
     | '/'
     | '/aanesta'
     | '/agentti'
+    | '/artistiksi'
     | '/asetukset'
     | '/kirjaudu'
     | '/musiikki'
     | '/osallistu'
+    | '/sahkopostit'
     | '/tiedotteet'
     | '/tilastot'
     | '/api/agent'
@@ -176,10 +196,12 @@ export interface FileRouteTypes {
     | '/'
     | '/aanesta'
     | '/agentti'
+    | '/artistiksi'
     | '/asetukset'
     | '/kirjaudu'
     | '/musiikki'
     | '/osallistu'
+    | '/sahkopostit'
     | '/tiedotteet'
     | '/tilastot'
     | '/api/agent'
@@ -193,10 +215,12 @@ export interface FileRouteTypes {
     | '/'
     | '/aanesta'
     | '/agentti'
+    | '/artistiksi'
     | '/asetukset'
     | '/kirjaudu'
     | '/musiikki'
     | '/osallistu'
+    | '/sahkopostit'
     | '/tiedotteet'
     | '/tilastot'
     | '/api/agent'
@@ -211,10 +235,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AanestaRoute: typeof AanestaRoute
   AgenttiRoute: typeof AgenttiRoute
+  ArtistiksiRoute: typeof ArtistiksiRoute
   AsetuksetRoute: typeof AsetuksetRoute
   KirjauduRoute: typeof KirjauduRoute
   MusiikkiRoute: typeof MusiikkiRoute
   OsallistuRoute: typeof OsallistuRoute
+  SahkopostitRoute: typeof SahkopostitRoute
   TiedotteetRoute: typeof TiedotteetRoute
   TilastotRoute: typeof TilastotRoute
   ApiAgentRoute: typeof ApiAgentRoute
@@ -248,6 +274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgenttiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/artistiksi': {
+      id: '/artistiksi'
+      path: '/artistiksi'
+      fullPath: '/artistiksi'
+      preLoaderRoute: typeof ArtistiksiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/asetukset': {
       id: '/asetukset'
       path: '/asetukset'
@@ -274,6 +307,13 @@ declare module '@tanstack/react-router' {
       path: '/osallistu'
       fullPath: '/osallistu'
       preLoaderRoute: typeof OsallistuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sahkopostit': {
+      id: '/sahkopostit'
+      path: '/sahkopostit'
+      fullPath: '/sahkopostit'
+      preLoaderRoute: typeof SahkopostitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tiedotteet': {
@@ -339,10 +379,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AanestaRoute: AanestaRoute,
   AgenttiRoute: AgenttiRoute,
+  ArtistiksiRoute: ArtistiksiRoute,
   AsetuksetRoute: AsetuksetRoute,
   KirjauduRoute: KirjauduRoute,
   MusiikkiRoute: MusiikkiRoute,
   OsallistuRoute: OsallistuRoute,
+  SahkopostitRoute: SahkopostitRoute,
   TiedotteetRoute: TiedotteetRoute,
   TilastotRoute: TilastotRoute,
   ApiAgentRoute: ApiAgentRoute,

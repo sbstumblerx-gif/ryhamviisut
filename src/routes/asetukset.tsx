@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -57,6 +57,7 @@ function Settings() {
           <div className="space-y-4">
             <p className="text-success">Olet kirjautunut adminina.</p>
             <div className="flex flex-wrap gap-2">
+              <Button asChild><Link to="/sahkopostit">Sähköpostit</Link></Button>
               <Button variant="outline" onClick={() => void loadApplications()} disabled={inboxLoading}>{inboxLoading ? "Päivitetään…" : "Päivitä inbox"}</Button>
             </div>
             <section className="space-y-4 border-t border-border pt-5">
@@ -160,7 +161,10 @@ function Settings() {
             ) : (
               <p className="text-sm text-muted-foreground">Kirjaudu sisään ylläpitäjän tilillä nähdäksesi asetukset.</p>
             )}
-            <Button variant="outline" onClick={() => { window.location.href = "/kirjaudu"; }}>Kirjaudu</Button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => { window.location.href = "/kirjaudu"; }}>Kirjaudu</Button>
+              <Button asChild variant="outline"><Link to="/artistiksi">Kirjaudu artistina</Link></Button>
+            </div>
           </div>
         )}
       </div>

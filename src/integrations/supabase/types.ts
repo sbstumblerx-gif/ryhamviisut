@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor: string
+          created_at: string
+          details: Json
+          id: string
+          target: string | null
+        }
+        Insert: {
+          action: string
+          actor: string
+          created_at?: string
+          details?: Json
+          id?: string
+          target?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          target?: string | null
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           content: Json
@@ -38,6 +65,42 @@ export type Database = {
           id?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      artist_claims: {
+        Row: {
+          artist_name: string
+          artist_slug: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          email: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          artist_name: string
+          artist_slug: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          email: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          artist_name?: string
+          artist_slug?: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          email?: string
+          id?: string
+          status?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -130,6 +193,30 @@ export type Database = {
           created_at?: string
           id?: string
           year?: number
+        }
+        Relationships: []
+      }
+      email_blocks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string
+          reason: string | null
+          scope: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email: string
+          reason?: string | null
+          scope: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          reason?: string | null
+          scope?: string
         }
         Relationships: []
       }
@@ -303,6 +390,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_set_claim_status: {
+        Args: {
+          _actor: string
+          _claim_id: string
+          _from: string[]
+          _to: string
+        }
+        Returns: {
+          artist_name: string
+          artist_slug: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          email: string
+          id: string
+          status: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "artist_claims"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       agent_schema_catalog: {
         Args: never
         Returns: {
@@ -315,6 +427,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_verified_artist: {
+        Args: { _slug: string; _user_id: string }
         Returns: boolean
       }
     }

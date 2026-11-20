@@ -1,3 +1,4 @@
 - [ ] Add public announcements and home button.
 - [ ] Add account-based admin editor, searchable links, bold, italic and images.
-- [ ] Verify publishing, public reading and access restrictions.
+- [ ] Verify publishing, public reading and access restrictions.- [x] Switch Agentti to Gemini API (needs GEMINI_API_KEY secret from user).
+- [x] Artist sign-in claims, admin Sähköpostit view, email blocks.

@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
-import { createLovableAiGatewayRunIdFetch, getLovableAiGatewayRunId, withLovableAiGatewayRunIdHeader } from "@/lib/ai/run-id";
 import { z } from "zod";
 import type { Database, Json } from "@/integrations/supabase/types";
 
@@ -41,8 +40,8 @@ export const Route = createFileRoute("/api/agent")({
         }
         if (body.messages.length > 80) return jsonError("Keskustelu on liian pitkä. Aloita uusi keskustelu.", 413);
 
-        const lovableApiKey = process.env["LOVABLE_API_KEY"];
-        if (!lovableApiKey) return jsonError("Agentin tekoälyasetukset puuttuvat palvelimelta.", 503);
+        const geminiApiKey = process.env["GEMINI_API_KEY"];
+        if (!geminiApiKey) return jsonError("Gemini-API-avain puuttuu palvelimelta.", 503);
 
         let supabase: ReturnType<typeof getServerClient>;
         try {
@@ -62,12 +61,9 @@ export const Route = createFileRoute("/api/agent")({
           .maybeSingle();
         if (threadError || !thread) return jsonError("Keskustelua ei löytynyt tai sinulla ei ole siihen oikeutta.", 404);
 
-        const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(request));
-        const openai = createOpenAI({
-          baseURL: "https://ai.gateway.lovable.dev/v1",
-          apiKey: lovableApiKey,
-          headers: { "Lovable-API-Key": lovableApiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-          fetch: runIdFetch.fetch,
+        const gemini = createOpenAI({
+          baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+          apiKey: geminiApiKey,
         });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const anyDb = supabase as any;
@@ -79,18 +75,9 @@ export const Route = createFileRoute("/api/agent")({
           .trim();
 
         const result = streamText({
-          model: openai.responses("openai/gpt-6-astra"),
-          instructions: `Olet Ryhämviisujen Agentti, sarjan tiedonhakija ja faktantarkistaja. Vastaa suomeksi, ellei käyttäjä pyydä muuta. Autat käyttäjää löytämään tietoa Ryhämviisujen kilpailuista, osioista, artisteista, kappaleista, pisteistä, raadeista ja kaikesta muusta tietokantaan tallennetusta. Tarkista faktat aina työkaluilla ennen vastaamista. Jos erikoistyökalu ei riitä, käytä list_tables-työkalua nähdäksesi kaikki tietokannan taulut (myös uudet) ja read_table-työkalua niiden lukemiseen. Älä keksi puuttuvia tietoja: kerro selvästi, jos tietoa ei löydy. Kerro lyhyesti mihin tietoon vastauksesi perustuu. Työkalut ovat vain lukemista varten; älä väitä muuttaneesi tietoja.`,
+          model: gemini.chat("gemini-2.5-flash"),
+          system: `Olet Ryhämviisujen Agentti, sarjan tiedonhakija ja faktantarkistaja. Vastaa suomeksi, ellei käyttäjä pyydä muuta. Autat käyttäjää löytämään tietoa Ryhämviisujen kilpailuista, osioista, artisteista, kappaleista, pisteistä, raadeista ja kaikesta muusta tietokantaan tallennetusta. Tarkista faktat aina työkaluilla ennen vastaamista. Jos erikoistyökalu ei riitä, käytä list_tables-työkalua nähdäksesi kaikki tietokannan taulut (myös uudet) ja read_table-työkalua niiden lukemiseen. Älä keksi puuttuvia tietoja: kerro selvästi, jos tietoa ei löydy. Kerro lyhyesti mihin tietoon vastauksesi perustuu. Työkalut ovat vain lukemista varten; älä väitä muuttaneesi tietoja.`,
           abortSignal: request.signal,
-          providerOptions: {
-            openai: {
-              forceReasoning: true,
-              reasoningEffort: "medium",
-              reasoningSummary: "auto",
-              store: false,
-              include: ["reasoning.encrypted_content"],
-            },
-          },
           messages: await convertToModelMessages(messages),
           stopWhen: stepCountIs(8),
           tools: {
@@ -188,14 +175,14 @@ export const Route = createFileRoute("/api/agent")({
           },
         });
 
-        return withLovableAiGatewayRunIdHeader(result.toUIMessageStreamResponse({
+        return result.toUIMessageStreamResponse({
           sendReasoning: true,
           onError: (error) => {
             console.error("[Agentti] Virhe:", error);
             const status = (error as { statusCode?: number })?.statusCode;
             if (status === 429) return "Agentilla on nyt ruuhkaa. Yritä hetken päästä uudelleen.";
-            if (status === 402) return "Tekoälykrediitit ovat loppuneet. Lisää krediittejä työtilan asetuksista.";
-            if (status === 403) return "Tekoälyn käyttö on estetty tämän työtilan asetuksissa.";
+            if (status === 402) return "Gemini-tilin kiintiö tai laskutus estää pyynnön.";
+            if (status === 403) return "Gemini-API-avain ei kelpaa tai sillä ei ole oikeutta malliin.";
             return "Agentti ei pystynyt vastaamaan. Yritä uudelleen.";
           },
           onFinish: async ({ messages: completedMessages }) => {
@@ -219,7 +206,7 @@ export const Route = createFileRoute("/api/agent")({
               .eq("user_id", authData.user.id);
             if (updateError) console.error("[Agentti] Keskustelun päivitys epäonnistui:", updateError.message);
           },
-        }), runIdFetch);
+        });
       },
     },
   },
