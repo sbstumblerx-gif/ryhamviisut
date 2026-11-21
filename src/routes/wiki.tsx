@@ -25,7 +25,7 @@ function WikiPage() {
   const [search, setSearch] = useState("");
   const [editor, setEditor] = useState<{ id: string; title: string; content: unknown } | null | false>(false);
   const [opened, setOpened] = useState<string | null>(null);
-  const articles = useMemo(() => (data?.articles ?? []).filter(article => article.title.toLocaleLowerCase("fi").includes(search.toLocaleLowerCase("fi"))), [data, search]);
+  const articles = useMemo(() => (data?.articles ?? []).filter(article => (article.title + " " + JSON.stringify(article.content)).toLocaleLowerCase("fi").includes(search.toLocaleLowerCase("fi"))), [data, search]);
   const selected = data?.articles.find(article => article.id === opened);
   return <PageShell title="RyhämWiki" back="/lisaa">
     <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
