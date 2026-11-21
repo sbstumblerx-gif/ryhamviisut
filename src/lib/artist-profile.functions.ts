@@ -16,7 +16,11 @@ export const saveArtistProfile = createServerFn({ method: "POST" })
       _user_id: context.userId,
       _slug: data.slug,
     });
-    if (permissionError || !allowed) throw new Error("Sinulla ei ole tämän artistin muokkausoikeutta.");
+    const { data: adminAllowed } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (permissionError || (!allowed && !adminAllowed)) throw new Error("Sinulla ei ole tämän artistin muokkausoikeutta.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const db = supabaseAdmin as any;
