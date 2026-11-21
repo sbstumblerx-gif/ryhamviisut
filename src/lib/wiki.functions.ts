@@ -15,6 +15,12 @@ export const readWikiArticles = createServerFn({ method: "GET" }).handler(async 
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["VITE_SUPABASE_PUBLISHABLE_KEY"]!;
   const db = createClient<Database>(process.env["SUPABASE_URL"] ?? process.env["VITE_SUPABASE_URL"]!, key, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { fetch: (input, init) => {
+      const headers = new Headers(init?.headers);
+      if (key.startsWith("sb_") && headers.get("Authorization") === `Bearer ${key}`) headers.delete("Authorization");
+      headers.set("apikey", key);
+      return fetch(input, { ...init, headers });
+    } },
   });
   const { data, error } = await db.from("wiki_articles").select("id,title,content,created_at,updated_at").order("updated_at", { ascending: false });
   if (error) throw new Error("Wiki-artikkelien lataaminen epäonnistui.");
