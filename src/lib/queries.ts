@@ -90,7 +90,7 @@ export const artistDetailQuery = (artistSlug: string) =>
       const target = (links ?? []).find((link) => link.entity_type === "artist" && link.entity_key === slugName);
       const names = target
         ? (links ?? []).filter((link) => link.person_id === target.person_id && link.entity_type === "artist").map((link) => link.entity_key)
-        : [slugName];
+        : [artistSlug.replace(/-/g, " ").toLocaleLowerCase("fi-FI")];
       const nameSet = new Set(names);
       const appearances = (data ?? []).flatMap((section) =>
         (section.entries ?? [])
