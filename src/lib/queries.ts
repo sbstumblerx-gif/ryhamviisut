@@ -78,16 +78,23 @@ export const artistDetailQuery = (artistSlug: string) =>
   queryOptions({
     queryKey: ["artist-detail", artistSlug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("sections")
-        .select("id, type, competitions(id, year), entries(id, artist, song, video_url, audience_points, status, created_at), juries(*, jury_votes(*))");
+      const [{ data, error }, { data: links, error: linksError }] = await Promise.all([
+        supabase.from("sections").select("id, type, competitions(id, year), entries(id, artist, song, video_url, audience_points, status, created_at), juries(*, jury_votes(*))"),
+        supabase.from("person_links").select("person_id, entity_type, entity_key, entity_name"),
+      ]);
       if (error) throw error;
+      if (linksError) throw linksError;
 
-      const artistKey = (name: string) => name.trim().toLocaleLowerCase("fi-FI").replace(/\s+/g, "-");
-
+      const normalize = (name: string) => name.trim().toLocaleLowerCase("fi-FI");
+      const slugName = artistSlug.replace(/-/g, " ").toLocaleLowerCase("fi-FI");
+      const target = (links ?? []).find((link) => link.entity_type === "artist" && link.entity_key === slugName);
+      const names = target
+        ? (links ?? []).filter((link) => link.person_id === target.person_id && link.entity_type === "artist").map((link) => link.entity_key)
+        : [slugName];
+      const nameSet = new Set(names);
       const appearances = (data ?? []).flatMap((section) =>
         (section.entries ?? [])
-          .filter((entry) => entry.artist?.trim() && artistKey(entry.artist) === artistSlug)
+          .filter((entry) => entry.artist?.trim() && nameSet.has(normalize(entry.artist)))
           .map((entry) => ({
             ...entry,
             year: section.competitions?.year ?? null,
@@ -98,7 +105,9 @@ export const artistDetailQuery = (artistSlug: string) =>
             juries: section.juries ?? [],
           })),
       );
+      appearances.sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || b.created_at.localeCompare(a.created_at));
       const name = appearances[0]?.artist ?? null;
+      const aliases = [...new Set(appearances.map((entry) => entry.artist).filter((entry) => entry !== name))];
       const { data: profile } = await supabase
         .from("artist_profiles")
         .select("description, banner_path")
