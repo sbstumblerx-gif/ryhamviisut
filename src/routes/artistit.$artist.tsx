@@ -110,6 +110,14 @@ function ArtistPage() {
 
   return (
     <PageShell title={data.name} back="/artistit">
+      {data.bannerUrl && (
+        <div className="mb-8 overflow-hidden rounded-xl border">
+          <img src={data.bannerUrl} alt={`${data.name} banner`} className="block aspect-[2560/423] w-full object-cover" />
+        </div>
+      )}
+      {(isAdmin || isArtistOwner) && (
+        <ArtistBannerEditor slug={artist} currentBanner={data.bannerUrl} onUploaded={saveBanner} />
+      )}
       <section className="mb-8">
         <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-2xl">Kuvaus</h2>
