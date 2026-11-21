@@ -109,7 +109,7 @@ function ArtistPage() {
   }).length;
 
   return (
-    <PageShell title={data.name} back="/artistit">
+    <PageShell title={data.name} back="/artistit">\n      {!!data.aliases?.length && <p className="-mt-4 mb-6 text-sm text-muted-foreground">{data.aliases.length === 1 ? "Alias" : "Aliakset"}: {data.aliases.join(", ")}</p>}
       {data.bannerUrl && (
         <div className="mb-8 overflow-hidden rounded-xl border">
           <img src={data.bannerUrl} alt={`${data.name} banner`} className="block aspect-[2560/423] w-full object-cover" />
