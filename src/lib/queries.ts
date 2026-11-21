@@ -101,9 +101,9 @@ export const artistDetailQuery = (artistSlug: string) =>
       const name = appearances[0]?.artist ?? null;
       const { data: profile } = await supabase
         .from("artist_profiles")
-        .select("description")
+        .select("description, banner_path")
         .eq("slug", artistSlug)
         .maybeSingle();
-      return { name, appearances, description: profile?.description ?? null };
+      return {\n        name,\n        appearances,\n        description: profile?.description ?? null,\n        bannerPath: profile?.banner_path ?? null,\n        bannerUrl: profile?.banner_path ? supabase.storage.from("artist-banners").getPublicUrl(profile.banner_path).data.publicUrl : null,\n      };
     },
   });
