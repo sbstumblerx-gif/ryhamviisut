@@ -1,0 +1,56 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { createClient } from "@supabase/supabase-js";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
+import { announcementContent } from "./announcements";
+
+const articleInput = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().trim().min(1).max(200),
+  content: announcementContent,
+});
+
+export const readWikiArticles = createServerFn({ method: "GET" }).handler(async () => {
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["VITE_SUPABASE_PUBLISHABLE_KEY"]!;
+  const db = createClient<Database>(process.env["SUPABASE_URL"] ?? process.env["VITE_SUPABASE_URL"]!, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data, error } = await db.from("wiki_articles").select("id,title,content,created_at,updated_at").order("updated_at", { ascending: false });
+  if (error) throw new Error("Wiki-artikkelien lataaminen epäonnistui.");
+  const images: Record<string, string> = {};
+  for (const row of data ?? []) {
+    const content = row.content as { content?: { type: string; attrs?: { src?: string } }[] };
+    for (const node of content.content ?? []) {
+      if (node.type !== "image" || !node.attrs?.src || images[node.attrs.src]) continue;
+      const result = await db.storage.from("announcement-images").createSignedUrl(node.attrs.src, 3600);
+      if (result.data) images[node.attrs.src] = result.data.signedUrl;
+    }
+  }
+  return { articles: data ?? [], images };
+});
+
+export const saveWikiArticle = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => articleInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const role = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (role.error || !role.data) throw new Error("Tarvitset ylläpito-oikeuden.");
+    const patch = { title: data.title, content: data.content, updated_at: new Date().toISOString() };
+    const result = data.id
+      ? await context.supabase.from("wiki_articles").update(patch).eq("id", data.id).select("id").single()
+      : await context.supabase.from("wiki_articles").insert({ ...patch, created_by: context.userId }).select("id").single();
+    if (result.error) throw new Error("Wiki-artikkelin tallentaminen epäonnistui.");
+    return result.data;
+  });
+
+export const deleteWikiArticle = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const role = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (role.error || !role.data) throw new Error("Tarvitset ylläpito-oikeuden.");
+    const { error } = await context.supabase.from("wiki_articles").delete().eq("id", data.id);
+    if (error) throw new Error("Wiki-artikkelin poistaminen epäonnistui.");
+    return { ok: true };
+  });
