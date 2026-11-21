@@ -61,7 +61,7 @@ function StatisticsPage() {
       return { sections: (data ?? []) as unknown as Section[], links: links ?? [] };
     },
   });
-  const sections = statsData?.sections ?? [];
+  const sections = [...(statsData?.sections ?? [])].sort((a, b) => (b.competitions?.year ?? 0) - (a.competitions?.year ?? 0));
   const identityMap = useMemo(() => new Map((statsData?.links ?? []).map((link: any) => [link.entity_type + ":" + link.entity_key, link.person_id])), [statsData]);
   const personKey = (type: "artist" | "jury", name: string) => identityMap.get(type + ":" + normalize(name)) ?? type + ":" + normalize(name);
 
