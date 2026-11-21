@@ -2,3 +2,6 @@
 - [ ] Add account-based admin editor, searchable links, bold, italic and images.
 - [ ] Verify publishing, public reading and access restrictions.- [x] Switch Agentti to Gemini API (needs GEMINI_API_KEY secret from user).
 - [x] Artist sign-in claims, admin Sähköpostit view, email blocks.
+- [ ] Create the €1.99 EUR yearly supporter offer in the connected Stripe account.
+- [ ] Add secure supporter checkout and subscription management (waiting for supporter benefits).
+- [ ] Apply and test paid voting/app benefits (waiting for the user's exact benefit rules).
