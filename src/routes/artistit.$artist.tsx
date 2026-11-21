@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Play, Music2, Trophy, Users, Star, Gavel, Pencil } from "lucide-react";
 import { toast } from "sonner";
@@ -9,6 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { SECTION_LABEL, artistDetailQuery } from "@/lib/queries";
 import { playMusicTrack } from "@/components/MusicPlayer";
 import { useAdmin, youtubeEmbed } from "@/lib/admin";
+import { getMyArtistStatus } from "@/lib/artist-claims.functions";
+import { saveArtistProfile } from "@/lib/artist-profile.functions";
+import { ArtistBannerEditor } from "@/components/ArtistBannerEditor";
 
 export const Route = createFileRoute("/artistit/$artist")({
   head: ({ params }) => ({
@@ -24,7 +27,15 @@ export const Route = createFileRoute("/artistit/$artist")({
 function ArtistPage() {
   const { artist } = Route.useParams();
   const { data } = useSuspenseQuery(artistDetailQuery(artist));
-  const { isAdmin, run } = useAdmin();
+  const { isAdmin, isSignedIn, run } = useAdmin();
+  const queryClient = useQueryClient();
+  const { data: artistStatus } = useQuery({
+    queryKey: ["my-artist-status"],
+    queryFn: () => getMyArtistStatus(),
+    enabled: isSignedIn,
+    staleTime: 30000,
+  });
+  const isArtistOwner = !!artistStatus?.claims.some((claim) => claim.status === "approved" && claim.artist_slug === artist);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
@@ -32,7 +43,12 @@ function ArtistPage() {
   async function saveDescription() {
     setSaving(true);
     try {
-      await run({ type: "setArtistDescription", slug: artist, description: draft.trim() || null });
+      if (isAdmin) {
+        await run({ type: "setArtistDescription", slug: artist, description: draft.trim() || null });
+      } else {
+        await saveArtistProfile({ data: { slug: artist, description: draft.trim() || null, bannerPath: data.bannerPath } });
+        await queryClient.invalidateQueries({ queryKey: ["artist-detail", artist] });
+      }
       setEditing(false);
       toast.success("Kuvaus tallennettu.");
     } catch (error) {
@@ -40,6 +56,11 @@ function ArtistPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function saveBanner(path: string) {
+    await saveArtistProfile({ data: { slug: artist, description: data.description, bannerPath: path } });
+    await queryClient.invalidateQueries({ queryKey: ["artist-detail", artist] });
   }
 
   if (!data.name) {
@@ -92,7 +113,7 @@ function ArtistPage() {
       <section className="mb-8">
         <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-2xl">Kuvaus</h2>
-          {isAdmin && !editing && (
+          {(isAdmin || isArtistOwner) && !editing && (
             <Button variant="outline" size="sm" onClick={() => { setDraft(data.description ?? ""); setEditing(true); }}>
               <Pencil className="mr-2 h-4 w-4" /> Muokkaa
             </Button>
