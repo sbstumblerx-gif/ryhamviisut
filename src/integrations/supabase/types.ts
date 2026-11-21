@@ -106,16 +106,19 @@ export type Database = {
       }
       artist_profiles: {
         Row: {
+          banner_path: string | null
           description: string | null
           slug: string
           updated_at: string
         }
         Insert: {
+          banner_path?: string | null
           description?: string | null
           slug: string
           updated_at?: string
         }
         Update: {
+          banner_path?: string | null
           description?: string | null
           slug?: string
           updated_at?: string
