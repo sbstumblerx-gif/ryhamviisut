@@ -9,6 +9,8 @@ const youtubeUrl = z.string().trim().max(500).nullable();
 
 const action = z.discriminatedUnion("type", [
   z.object({ type: z.literal("verify") }),
+  z.object({ type: z.literal("listLinkablePeople") }),
+  z.object({ type: z.literal("linkPeople"), firstType: z.enum(["artist", "jury"]), firstName: z.string().trim().min(1).max(200), secondType: z.enum(["artist", "jury"]), secondName: z.string().trim().min(1).max(200) }),
   z.object({ type: z.literal("saveAnnouncement"), id: id.optional(), title: announcementInput.shape.title, content: announcementInput.shape.content }),
   z.object({ type: z.literal("deleteAnnouncement"), id }),
   z.object({ type: z.literal("createAnnouncementUpload"), path: z.string().regex(/^[a-f0-9-]+\.(png|jpg|webp|gif)$/), contentType: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]) }),
@@ -71,6 +73,52 @@ export const adminAction = createServerFn({ method: "POST" })
     switch (a.type) {
       case "verify":
         break;
+      case "listLinkablePeople": {
+        const [{ data: entries, error: entryError }, { data: juries, error: juryError }, { data: links, error: linkError }] = await Promise.all([
+          db.from("entries").select("artist, sections!inner(competitions!inner(year))"),
+          db.from("juries").select("name, sections!inner(competitions!inner(year))"),
+          db.from("person_links").select("person_id, entity_type, entity_key, entity_name"),
+        ]);
+        if (entryError) throw new Error(entryError.message);
+        if (juryError) throw new Error(juryError.message);
+        if (linkError) throw new Error(linkError.message);
+        const people = new Map<string, any>();
+        for (const row of entries ?? []) {
+          const name = String(row.artist ?? "").trim(); if (!name) continue;
+          const key = name.toLocaleLowerCase("fi-FI"), id = "artist:" + key;
+          const year = row.sections?.competitions?.year ?? 0, old = people.get(id);
+          if (!old || year > old.year) people.set(id, { type: "artist", name, year });
+        }
+        for (const row of juries ?? []) {
+          const name = String(row.name ?? "").trim(); if (!name) continue;
+          const key = name.toLocaleLowerCase("fi-FI"), id = "jury:" + key;
+          const year = row.sections?.competitions?.year ?? 0, old = people.get(id);
+          if (!old || year > old.year) people.set(id, { type: "jury", name, year });
+        }
+        const linked = new Map((links ?? []).map((x: any) => [x.entity_type + ":" + x.entity_key, x.person_id]));
+        return { ok: true, people: [...people.entries()].map(([id, person]) => ({ id, ...person, personId: linked.get(id) ?? null })) };
+      }
+      case "linkPeople": {
+        const norm = (s: string) => s.trim().toLocaleLowerCase("fi-FI");
+        const firstKey = norm(a.firstName), secondKey = norm(a.secondName);
+        if (a.firstType === a.secondType && firstKey === secondKey) throw new Error("Valitse kaksi eri henkilöä.");
+        const keys = [
+          { type: a.firstType, key: firstKey, name: a.firstName.trim() },
+          { type: a.secondType, key: secondKey, name: a.secondName.trim() },
+        ];
+        const { data: existing, error } = await db.from("person_links").select("person_id, entity_type, entity_key");
+        if (error) throw new Error(error.message);
+        const selected = (existing ?? []).filter((x: any) => keys.some(k => k.type === x.entity_type && k.key === x.entity_key));
+        const ids = [...new Set(selected.map((x: any) => x.person_id))];
+        const personId = ids[0] ?? crypto.randomUUID();
+        for (const oldId of ids.slice(1)) {
+          const { error: mergeError } = await db.from("person_links").update({ person_id: personId }).eq("person_id", oldId);
+          if (mergeError) throw new Error(mergeError.message);
+        }
+        const { error: upsertError } = await db.from("person_links").upsert(keys.map(x => ({ person_id: personId, entity_type: x.type, entity_key: x.key, entity_name: x.name })), { onConflict: "entity_type,entity_key" });
+        if (upsertError) throw new Error(upsertError.message);
+        return { ok: true };
+      }
       case "saveAnnouncement": {
         const patch = { title: a.title, content: a.content, updated_at: new Date().toISOString() };
         if (a.id) check(await db.from("announcements").update(patch).eq("id", a.id));
