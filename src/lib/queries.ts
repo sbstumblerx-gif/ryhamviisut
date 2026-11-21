@@ -86,8 +86,7 @@ export const artistDetailQuery = (artistSlug: string) =>
       if (linksError) throw linksError;
 
       const normalize = (name: string) => name.trim().toLocaleLowerCase("fi-FI");
-      const slugName = artistSlug.replace(/-/g, " ").toLocaleLowerCase("fi-FI");
-      const target = (links ?? []).find((link) => link.entity_type === "artist" && link.entity_key === slugName);
+      const target = (links ?? []).find((link) => link.entity_type === "artist" && link.entity_key.trim().toLocaleLowerCase("fi-FI").replace(/\\s+/g, "-") === artistSlug);
       const names = target
         ? (links ?? []).filter((link) => link.person_id === target.person_id && link.entity_type === "artist").map((link) => link.entity_key)
         : [artistSlug.replace(/-/g, " ").toLocaleLowerCase("fi-FI")];
