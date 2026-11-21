@@ -115,8 +115,13 @@ function ArtistPage() {
           <img src={data.bannerUrl} alt={`${data.name} banner`} className="block aspect-[2560/423] w-full object-cover" />
         </div>
       )}
-      {(isAdmin || isArtistOwner) && (
-        <ArtistBannerEditor slug={artist} currentBanner={data.bannerUrl} onUploaded={saveBanner} />
+      {isSignedIn && (
+        <ArtistBannerEditor
+          slug={artist}
+          currentBanner={data.bannerUrl}
+          onUploaded={saveBanner}
+          disabled={!isAdmin && !isArtistOwner}
+        />
       )}
       <section className="mb-8">
         <div className="mb-3 flex items-center justify-between gap-2">
