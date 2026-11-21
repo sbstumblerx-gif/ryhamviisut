@@ -171,3 +171,74 @@ function Settings() {
     </PageShell>
   );
 }
+
+
+type LinkablePerson = { id: string; type: "artist" | "jury"; name: string; year: number; personId: string | null };
+function PersonLinkManager({ run }: { run: ReturnType<typeof useAdmin>["run"] }) {
+  const [people, setPeople] = useState<LinkablePerson[]>([]);
+  const [first, setFirst] = useState("");
+  const [second, setSecond] = useState("");
+  const [loading, setLoading] = useState(false);
+  async function refresh() {
+    setLoading(true);
+    try {
+      const result = await run({ type: "listLinkablePeople" }) as any;
+      setPeople(result.people ?? []);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Henkilöiden lataaminen epäonnistui.");
+    } finally { setLoading(false); }
+  }
+  useEffect(() => { void refresh(); }, []);
+  const label = (p: LinkablePerson) => `${p.name} · ${p.type === "artist" ? "Artisti / esiintyjä" : "Raati"}`;
+  const selected = (id: string) => people.find(p => p.id === id);
+  const groups = new Map<string, LinkablePerson[]>();
+  for (const person of people) if (person.personId) groups.set(person.personId, [...(groups.get(person.personId) ?? []), person]);
+  async function link() {
+    const a = selected(first), b = selected(second);
+    if (!a || !b) return;
+    setLoading(true);
+    try {
+      await run({ type: "linkPeople", firstType: a.type, firstName: a.name, secondType: b.type, secondName: b.name });
+      toast.success("Henkilöt linkitetty. Tilastot yhdistetään.");
+      setFirst(""); setSecond("");
+      await refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Linkitys epäonnistui.");
+    } finally { setLoading(false); }
+  }
+  return (
+    <section className="space-y-4 border-t border-border pt-5">
+      <div>
+        <h2 className="text-2xl font-semibold">Henkilöiden linkitys</h2>
+        <p className="text-sm text-muted-foreground">Yhdistä artisti, muu esiintyjä tai raati samaksi henkilöksi. Linkitys toimii myös ristiin, esimerkiksi artisti–raati. Alkuperäiset nimet säilyvät kilpailumerkinnöissä.</p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="space-y-1 text-sm font-medium">Ensimmäinen henkilö
+          <select className="w-full rounded-md border border-input bg-background px-3 py-2" value={first} onChange={e => setFirst(e.target.value)}>
+            <option value="">Valitse henkilö…</option>
+            {people.map(p => <option key={p.id} value={p.id}>{label(p)}</option>)}
+          </select>
+        </label>
+        <label className="space-y-1 text-sm font-medium">Toinen henkilö
+          <select className="w-full rounded-md border border-input bg-background px-3 py-2" value={second} onChange={e => setSecond(e.target.value)}>
+            <option value="">Valitse henkilö…</option>
+            {people.map(p => <option key={p.id} value={p.id}>{label(p)}</option>)}
+          </select>
+        </label>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => void link()} disabled={loading || !first || !second || first === second}>{loading ? "Käsitellään…" : "Linkitä henkilöt"}</Button>
+        <Button variant="outline" onClick={() => void refresh()} disabled={loading}>Päivitä lista</Button>
+      </div>
+      <div className="space-y-2">
+        <h3 className="font-semibold">Nykyiset linkitykset</h3>
+        {groups.size === 0 ? <p className="text-sm text-muted-foreground">Linkityksiä ei ole vielä tehty.</p> : [...groups.values()].map(group => (
+          <div key={group[0]?.personId} className="rounded-lg border border-border p-3">
+            <p className="font-medium">{group.map(p => p.name).join(" = ")}</p>
+            <p className="text-xs text-muted-foreground">{group.map(p => p.type === "artist" ? "Artisti / esiintyjä" : "Raati").join(" · ")}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
