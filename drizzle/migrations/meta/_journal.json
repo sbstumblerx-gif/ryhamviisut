@@ -57,6 +57,13 @@
       "when": 1795263600000,
       "tag": "0007_wiki_articles",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795267200000,
+      "tag": "0008_person_links",
+      "breakpoints": true
     }
   ]
 }
