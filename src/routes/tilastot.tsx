@@ -49,21 +49,26 @@ function StatisticsPage() {
   const [selectedJury, setSelectedJury] = useState("");
   const [specialPhase, setSpecialPhase] = useState<"finaali" | "karsinta">("finaali");
 
-  const { data: sections = [], isLoading, error } = useQuery({
+  const { data: statsData, isLoading, error } = useQuery({
     queryKey: ["statistics-sections"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("sections")
-        .select("id, type, competitions(year), entries(id, artist, audience_points), juries(id, name, jury_votes(entry_id, points, rank))");
+      const [{ data, error }, { data: links, error: linkError }] = await Promise.all([
+        supabase.from("sections").select("id, type, competitions(year), entries(id, artist, audience_points), juries(id, name, jury_votes(entry_id, points, rank))"),
+        supabase.from("person_links").select("person_id, entity_type, entity_key"),
+      ]);
       if (error) throw error;
-      return (data ?? []) as unknown as Section[];
+      if (linkError) throw linkError;
+      return { sections: (data ?? []) as unknown as Section[], links: links ?? [] };
     },
   });
+  const sections = statsData?.sections ?? [];
+  const identityMap = useMemo(() => new Map((statsData?.links ?? []).map((link: any) => [link.entity_type + ":" + link.entity_key, link.person_id])), [statsData]);
+  const personKey = (type: "artist" | "jury", name: string) => identityMap.get(type + ":" + normalize(name)) ?? type + ":" + normalize(name);
 
   const artists = useMemo(() => {
     const names = new Map<string, string>();
     for (const section of sections) for (const entry of section.entries ?? []) {
-      if (entry.artist?.trim()) names.set(normalize(entry.artist), names.get(normalize(entry.artist)) ?? entry.artist.trim());
+      if (entry.artist?.trim()) names.set(personKey("artist", entry.artist), names.get(personKey("artist", entry.artist)) ?? entry.artist.trim());
     }
     return [...names.entries()].map(([key, name]) => ({ key, name })).sort((a, b) => a.name.localeCompare(b.name, "fi"));
   }, [sections]);
@@ -71,7 +76,7 @@ function StatisticsPage() {
   const juries = useMemo(() => {
     const names = new Map<string, string>();
     for (const section of sections) for (const jury of section.juries ?? []) {
-      if (jury.name?.trim()) names.set(normalize(jury.name), names.get(normalize(jury.name)) ?? jury.name.trim());
+      if (jury.name?.trim()) names.set(personKey("jury", jury.name), names.get(personKey("jury", jury.name)) ?? jury.name.trim());
     }
     return [...names.entries()].map(([key, name]) => ({ key, name })).sort((a, b) => a.name.localeCompare(b.name, "fi"));
   }, [sections]);
@@ -86,7 +91,7 @@ function StatisticsPage() {
       for (const entry of section.entries ?? []) {
         const name = entry.artist?.trim();
         if (!name) continue;
-        const key = normalize(name);
+        const key = personKey("artist", name);
         const juryPoints = (section.juries ?? []).reduce(
           (sum, jury) => sum + (jury.jury_votes ?? []).filter((vote) => vote.entry_id === entry.id).reduce((s, vote) => s + (Number(vote.points) || 0), 0),
           0,
@@ -100,23 +105,23 @@ function StatisticsPage() {
     }
 
     return [...totalsByArtist.values()].sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, "fi"));
-  }, [sections, mode]);
+  }, [sections, mode, identityMap]);
 
   const juryGivingArtist = useMemo(() => {
     if (!selectedArtist) return [];
     const sums = new Map<string, { name: string; points: number }>();
     for (const section of sections) {
       if (section.type !== specialPhase) continue;
-      const entryIds = new Set((section.entries ?? []).filter((e) => normalize(e.artist) === selectedArtist).map((e) => e.id));
+      const entryIds = new Set((section.entries ?? []).filter((e) => personKey("artist", e.artist) === selectedArtist).map((e) => e.id));
       for (const jury of section.juries ?? []) {
-        const key = normalize(jury.name);
+        const key = personKey("jury", jury.name);
         const current = sums.get(key) ?? { name: jury.name, points: 0 };
         current.points += (jury.jury_votes ?? []).filter((v) => entryIds.has(v.entry_id)).reduce((s, v) => s + (Number(v.points) || 0), 0);
         sums.set(key, current);
       }
     }
     return [...sums.values()].sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, "fi"));
-  }, [sections, selectedArtist, specialPhase]);
+  }, [sections, selectedArtist, specialPhase, identityMap]);
 
   const artistReceivingFromJury = useMemo(() => {
     if (!selectedJury) return [];
@@ -124,11 +129,11 @@ function StatisticsPage() {
     for (const section of sections) {
       if (section.type !== specialPhase) continue;
       for (const jury of section.juries ?? []) {
-        if (normalize(jury.name) !== selectedJury) continue;
+        if (personKey("jury", jury.name) !== selectedJury) continue;
         for (const vote of jury.jury_votes ?? []) {
           const entry = (section.entries ?? []).find((e) => e.id === vote.entry_id);
           if (!entry?.artist?.trim()) continue;
-          const key = normalize(entry.artist);
+          const key = personKey("artist", entry.artist);
           const current = sums.get(key) ?? { name: entry.artist.trim(), points: 0 };
           current.points += Number(vote.points) || 0;
           sums.set(key, current);
@@ -136,7 +141,7 @@ function StatisticsPage() {
       }
     }
     return [...sums.values()].sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, "fi"));
-  }, [sections, selectedJury, specialPhase]);
+  }, [sections, selectedJury, specialPhase, identityMap]);
 
   if (isLoading) return <PageShell title="Tilastot"><p className="text-muted-foreground">Ladataan tilastoja…</p></PageShell>;
   if (error) return <PageShell title="Tilastot"><p className="text-destructive">Tilastojen lataaminen epäonnistui.</p></PageShell>;
