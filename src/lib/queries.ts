@@ -106,7 +106,7 @@ export const artistDetailQuery = (artistSlug: string) =>
       );
       appearances.sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || b.created_at.localeCompare(a.created_at));
       const name = appearances[0]?.artist ?? null;
-      const aliases = [...new Set(appearances.map((entry) => entry.artist).filter((entry) => entry !== name))];
+      const linkedAliases = target ? (links ?? []).filter((link) => link.person_id === target.person_id).map((link) => link.entity_name) : [];\n      const aliases = [...new Set([...linkedAliases, ...appearances.map((entry) => entry.artist)].filter((entry) => entry !== name))];
       const { data: profile } = await supabase
         .from("artist_profiles")
         .select("description, banner_path")
