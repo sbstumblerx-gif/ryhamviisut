@@ -109,6 +109,7 @@ export const artistDetailQuery = (artistSlug: string) =>
         appearances,
         description: profile?.description ?? null,
         bannerPath: profile?.banner_path ?? null,
-        bannerUrl: profile?.banner_path ? supabase.storage.from("artist-banners").getPublicUrl(profile.banner_path).data.publicUrl : null,\n      };
+        bannerUrl: profile?.banner_path ? supabase.storage.from("artist-banners").getPublicUrl(profile.banner_path).data.publicUrl : null,
+      };
     },
   });
