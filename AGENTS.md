@@ -14,3 +14,4 @@
 - The agent discovers tables via the `agent_schema_catalog()` SQL function plus a generic read-only `read_table` tool, so new tables become visible to it without code changes.
 - Announcements use validated Tiptap JSON rendered as React elements; writes require authenticated user_roles admin authorization, and private images are exposed through signed URLs only when referenced by a public announcement.
 - Artist claims, email blocks and admin audit log are service_role-only tables (no RLS policies); emails are read/changed only in `src/lib/artist-claims.functions.ts` after a has_role admin check, and claim status changes go through the atomic `admin_set_claim_status` SQL function.
+- Supporter billing uses the pre-created Stripe catalog IDs from `src/lib/supporter-plan.ts`; never create prices during checkout, so charges remain traceable to the configured offer.
