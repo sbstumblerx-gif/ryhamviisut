@@ -50,6 +50,13 @@
       "when": 1795260000000,
       "tag": "0006_artist_profile_banners",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795263600000,
+      "tag": "0007_wiki_articles",
+      "breakpoints": true
     }
   ]
 }
