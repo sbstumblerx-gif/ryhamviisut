@@ -43,6 +43,13 @@
       "when": 1795182638921,
       "tag": "0005_artist_claims_and_email_blocks",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795260000000,
+      "tag": "0006_artist_profile_banners",
+      "breakpoints": true
     }
   ]
 }
