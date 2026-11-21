@@ -68,6 +68,12 @@ export type Database = {
         }
         Relationships: []
       }
+      wiki_articles: {
+        Row: { id: string; title: string; content: Json; created_by: string; created_at: string; updated_at: string }
+        Insert: { id?: string; title: string; content?: Json; created_by: string; created_at?: string; updated_at?: string }
+        Update: { id?: string; title?: string; content?: Json; created_by?: string; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
       artist_claims: {
         Row: {
           artist_name: string
