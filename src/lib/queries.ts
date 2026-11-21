@@ -104,6 +104,11 @@ export const artistDetailQuery = (artistSlug: string) =>
         .select("description, banner_path")
         .eq("slug", artistSlug)
         .maybeSingle();
-      return {\n        name,\n        appearances,\n        description: profile?.description ?? null,\n        bannerPath: profile?.banner_path ?? null,\n        bannerUrl: profile?.banner_path ? supabase.storage.from("artist-banners").getPublicUrl(profile.banner_path).data.publicUrl : null,\n      };
+      return {
+        name,
+        appearances,
+        description: profile?.description ?? null,
+        bannerPath: profile?.banner_path ?? null,
+        bannerUrl: profile?.banner_path ? supabase.storage.from("artist-banners").getPublicUrl(profile.banner_path).data.publicUrl : null,\n      };
     },
   });
