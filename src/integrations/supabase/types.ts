@@ -127,6 +127,7 @@ export type Database = {
         }
         Update: {
           banner_path?: string | null
+          image_path?: string | null
           description?: string | null
           slug?: string
           updated_at?: string
