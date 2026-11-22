@@ -21,6 +21,7 @@ import { Route as OsallistuRouteImport } from './routes/osallistu'
 import { Route as SahkopostitRouteImport } from './routes/sahkopostit'
 import { Route as TiedotteetRouteImport } from './routes/tiedotteet'
 import { Route as TilastotRouteImport } from './routes/tilastot'
+import { Route as TukijaRouteImport } from './routes/tukija'
 import { Route as WikiRouteImport } from './routes/wiki'
 import { Route as ApiAgentRouteImport } from './routes/api.agent'
 import { Route as ArtistitIndexRouteImport } from './routes/artistit.index'
@@ -89,6 +90,11 @@ const TilastotRoute = TilastotRouteImport.update({
   path: '/tilastot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TukijaRoute = TukijaRouteImport.update({
+  id: '/tukija',
+  path: '/tukija',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WikiRoute = WikiRouteImport.update({
   id: '/wiki',
   path: '/wiki',
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/sahkopostit': typeof SahkopostitRoute
   '/tiedotteet': typeof TiedotteetRoute
   '/tilastot': typeof TilastotRoute
+  '/tukija': typeof TukijaRoute
   '/wiki': typeof WikiRoute
   '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/sahkopostit': typeof SahkopostitRoute
   '/tiedotteet': typeof TiedotteetRoute
   '/tilastot': typeof TilastotRoute
+  '/tukija': typeof TukijaRoute
   '/wiki': typeof WikiRoute
   '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
@@ -181,6 +189,7 @@ export interface FileRoutesById {
   '/sahkopostit': typeof SahkopostitRoute
   '/tiedotteet': typeof TiedotteetRoute
   '/tilastot': typeof TilastotRoute
+  '/tukija': typeof TukijaRoute
   '/wiki': typeof WikiRoute
   '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
@@ -204,6 +213,7 @@ export interface FileRouteTypes {
     | '/sahkopostit'
     | '/tiedotteet'
     | '/tilastot'
+    | '/tukija'
     | '/wiki'
     | '/api/agent'
     | '/artistit/$artist'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/sahkopostit'
     | '/tiedotteet'
     | '/tilastot'
+    | '/tukija'
     | '/wiki'
     | '/api/agent'
     | '/artistit/$artist'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/sahkopostit'
     | '/tiedotteet'
     | '/tilastot'
+    | '/tukija'
     | '/wiki'
     | '/api/agent'
     | '/artistit/$artist'
@@ -268,6 +280,7 @@ export interface RootRouteChildren {
   SahkopostitRoute: typeof SahkopostitRoute
   TiedotteetRoute: typeof TiedotteetRoute
   TilastotRoute: typeof TilastotRoute
+  TukijaRoute: typeof TukijaRoute
   WikiRoute: typeof WikiRoute
   ApiAgentRoute: typeof ApiAgentRoute
   ArtistitArtistRoute: typeof ArtistitArtistRoute
@@ -363,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TilastotRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tukija': {
+      id: '/tukija'
+      path: '/tukija'
+      fullPath: '/tukija'
+      preLoaderRoute: typeof TukijaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/wiki': {
       id: '/wiki'
       path: '/wiki'
@@ -428,6 +448,7 @@ const rootRouteChildren: RootRouteChildren = {
   SahkopostitRoute: SahkopostitRoute,
   TiedotteetRoute: TiedotteetRoute,
   TilastotRoute: TilastotRoute,
+  TukijaRoute: TukijaRoute,
   WikiRoute: WikiRoute,
   ApiAgentRoute: ApiAgentRoute,
   ArtistitArtistRoute: ArtistitArtistRoute,

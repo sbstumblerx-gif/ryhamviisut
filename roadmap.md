@@ -4,6 +4,7 @@
 - [x] Artist sign-in claims, admin Sähköpostit view, email blocks.
 - [x] Create the €1.99 EUR yearly supporter offer in the connected Stripe account.
 - [ ] Add secure supporter checkout and subscription management.
+- [ ] Keep checkout tax automation off as requested; the seller remains responsible for tax obligations.
 - [ ] Enforce up to five supporter votes per contest, including concurrent submissions.
 - [ ] Add supporter appearance choices and verified badge.
 - [ ] Enforce 200 daily Agentti requests for supporters and 50 for regular users, resetting at midnight UTC.
