@@ -6,6 +6,7 @@ const profileInput = z.object({
   slug: z.string().trim().min(1).max(200),
   description: z.string().trim().max(5000).nullable(),
   bannerPath: z.string().regex(/^[^/]{1,200}\/[a-f0-9-]+\.webp$/u).nullable(),
+  imagePath: z.string().regex(/^[^/]{1,200}\\/[a-f0-9-]+\\.webp$/u).nullable(),
 });
 
 export const saveArtistProfile = createServerFn({ method: "POST" })
@@ -27,7 +28,8 @@ export const saveArtistProfile = createServerFn({ method: "POST" })
     const patch = {
       slug: data.slug,
       description: data.description || null,
-      banner_path: data.bannerPath,\n      image_path: data.imagePath,
+      banner_path: data.bannerPath,
+      image_path: data.imagePath,
       updated_at: new Date().toISOString(),
     };
     const { error } = await db.from("artist_profiles").upsert(patch, { onConflict: "slug" });
