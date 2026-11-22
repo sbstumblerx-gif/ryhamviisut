@@ -106,7 +106,8 @@ export const artistDetailQuery = (artistSlug: string) =>
       );
       appearances.sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || b.created_at.localeCompare(a.created_at));
       const name = appearances[0]?.artist ?? null;
-      const linkedAliases = target ? (links ?? []).filter((link) => link.person_id === target.person_id).map((link) => link.entity_name) : [];\n      const aliases = [...new Set([...linkedAliases, ...appearances.map((entry) => entry.artist)].filter((entry) => entry !== name))];
+      const linkedAliases = target ? (links ?? []).filter((link) => link.person_id === target.person_id).map((link) => link.entity_name) : [];
+      const aliases = [...new Set([...linkedAliases, ...appearances.map((entry) => entry.artist)].filter((entry) => entry !== name))];
       const { data: profile } = await supabase
         .from("artist_profiles")
         .select("description, banner_path, image_path")
@@ -116,7 +117,9 @@ export const artistDetailQuery = (artistSlug: string) =>
         name,
         appearances,
         description: profile?.description ?? null,
-        bannerPath: profile?.banner_path ?? null,\n        imagePath: profile?.image_path ?? null,\n        imageUrl: profile?.image_path ? supabase.storage.from("artist-images").getPublicUrl(profile.image_path).data.publicUrl : null,
+        bannerPath: profile?.banner_path ?? null,
+        imagePath: profile?.image_path ?? null,
+        imageUrl: profile?.image_path ? supabase.storage.from("artist-images").getPublicUrl(profile.image_path).data.publicUrl : null,
         bannerUrl: profile?.banner_path ? supabase.storage.from("artist-banners").getPublicUrl(profile.banner_path).data.publicUrl : null,
       };
     },
