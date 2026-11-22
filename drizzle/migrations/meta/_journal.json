@@ -64,6 +64,13 @@
       "when": 1795267200000,
       "tag": "0008_person_links",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795360920000,
+      "tag": "0009_artist_profile_images",
+      "breakpoints": true
     }
   ]
-}
+}\n
