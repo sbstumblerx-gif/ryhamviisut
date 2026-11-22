@@ -32,7 +32,7 @@ function WikiPage() {
       <p className="text-muted-foreground">Ryhämviisujen yhteinen tietopankki.</p>
       {isAdmin && <Button onClick={() => { setEditor(null); setOpened(null); }}><Plus className="mr-2 h-4 w-4" />Uusi artikkeli</Button>}
     </div>
-    {editor !== false && <WikiArticleEditor key={editor ? editor.id : "new"} initial={editor || undefined} images={data?.images ?? {}} onClose={() => { setEditor(false); void qc.invalidateQueries({ queryKey: ["wiki-articles"] }); }} />}
+    {editor !== false && <WikiArticleEditor key={editor ? editor.id : "new"} {...(editor ? { initial: editor } : {})} images={data?.images ?? {}} onClose={() => { setEditor(false); void qc.invalidateQueries({ queryKey: ["wiki-articles"] }); }} />}
     <div className="relative my-5"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-9" value={search} onChange={e => { setSearch(e.target.value); setOpened(null); }} placeholder="Hae artikkeleita…" aria-label="Hae Wiki-artikkeleita" /></div>
     {selected ? <article className="tile p-5 sm:p-7">
       <Button variant="ghost" size="sm" onClick={() => setOpened(null)}>← Kaikki artikkelit</Button>

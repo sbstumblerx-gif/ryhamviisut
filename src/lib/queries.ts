@@ -115,6 +115,7 @@ export const artistDetailQuery = (artistSlug: string) =>
         .maybeSingle();
       return {
         name,
+        aliases,
         appearances,
         description: profile?.description ?? null,
         bannerPath: profile?.banner_path ?? null,
