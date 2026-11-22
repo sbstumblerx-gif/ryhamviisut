@@ -27,7 +27,7 @@ export const saveArtistProfile = createServerFn({ method: "POST" })
     const patch = {
       slug: data.slug,
       description: data.description || null,
-      banner_path: data.bannerPath,
+      banner_path: data.bannerPath,\n      image_path: data.imagePath,
       updated_at: new Date().toISOString(),
     };
     const { error } = await db.from("artist_profiles").upsert(patch, { onConflict: "slug" });
