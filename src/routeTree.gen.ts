@@ -15,11 +15,13 @@ import { Route as AgenttiRouteImport } from './routes/agentti'
 import { Route as ArtistiksiRouteImport } from './routes/artistiksi'
 import { Route as AsetuksetRouteImport } from './routes/asetukset'
 import { Route as KirjauduRouteImport } from './routes/kirjaudu'
+import { Route as LisaaRouteImport } from './routes/lisaa'
 import { Route as MusiikkiRouteImport } from './routes/musiikki'
 import { Route as OsallistuRouteImport } from './routes/osallistu'
 import { Route as SahkopostitRouteImport } from './routes/sahkopostit'
 import { Route as TiedotteetRouteImport } from './routes/tiedotteet'
 import { Route as TilastotRouteImport } from './routes/tilastot'
+import { Route as WikiRouteImport } from './routes/wiki'
 import { Route as ApiAgentRouteImport } from './routes/api.agent'
 import { Route as ArtistitIndexRouteImport } from './routes/artistit.index'
 import { Route as ArtistitArtistRouteImport } from './routes/artistit.$artist'
@@ -57,6 +59,11 @@ const KirjauduRoute = KirjauduRouteImport.update({
   path: '/kirjaudu',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LisaaRoute = LisaaRouteImport.update({
+  id: '/lisaa',
+  path: '/lisaa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MusiikkiRoute = MusiikkiRouteImport.update({
   id: '/musiikki',
   path: '/musiikki',
@@ -80,6 +87,11 @@ const TiedotteetRoute = TiedotteetRouteImport.update({
 const TilastotRoute = TilastotRouteImport.update({
   id: '/tilastot',
   path: '/tilastot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WikiRoute = WikiRouteImport.update({
+  id: '/wiki',
+  path: '/wiki',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAgentRoute = ApiAgentRouteImport.update({
@@ -120,11 +132,13 @@ export interface FileRoutesByFullPath {
   '/artistiksi': typeof ArtistiksiRoute
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
+  '/lisaa': typeof LisaaRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/sahkopostit': typeof SahkopostitRoute
   '/tiedotteet': typeof TiedotteetRoute
   '/tilastot': typeof TilastotRoute
+  '/wiki': typeof WikiRoute
   '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
@@ -139,11 +153,13 @@ export interface FileRoutesByTo {
   '/artistiksi': typeof ArtistiksiRoute
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
+  '/lisaa': typeof LisaaRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/sahkopostit': typeof SahkopostitRoute
   '/tiedotteet': typeof TiedotteetRoute
   '/tilastot': typeof TilastotRoute
+  '/wiki': typeof WikiRoute
   '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
@@ -159,11 +175,13 @@ export interface FileRoutesById {
   '/artistiksi': typeof ArtistiksiRoute
   '/asetukset': typeof AsetuksetRoute
   '/kirjaudu': typeof KirjauduRoute
+  '/lisaa': typeof LisaaRoute
   '/musiikki': typeof MusiikkiRoute
   '/osallistu': typeof OsallistuRoute
   '/sahkopostit': typeof SahkopostitRoute
   '/tiedotteet': typeof TiedotteetRoute
   '/tilastot': typeof TilastotRoute
+  '/wiki': typeof WikiRoute
   '/api/agent': typeof ApiAgentRoute
   '/artistit/$artist': typeof ArtistitArtistRoute
   '/kilpailut/$year': typeof KilpailutYearRoute
@@ -180,11 +198,13 @@ export interface FileRouteTypes {
     | '/artistiksi'
     | '/asetukset'
     | '/kirjaudu'
+    | '/lisaa'
     | '/musiikki'
     | '/osallistu'
     | '/sahkopostit'
     | '/tiedotteet'
     | '/tilastot'
+    | '/wiki'
     | '/api/agent'
     | '/artistit/$artist'
     | '/kilpailut/$year'
@@ -199,11 +219,13 @@ export interface FileRouteTypes {
     | '/artistiksi'
     | '/asetukset'
     | '/kirjaudu'
+    | '/lisaa'
     | '/musiikki'
     | '/osallistu'
     | '/sahkopostit'
     | '/tiedotteet'
     | '/tilastot'
+    | '/wiki'
     | '/api/agent'
     | '/artistit/$artist'
     | '/kilpailut/$year'
@@ -218,11 +240,13 @@ export interface FileRouteTypes {
     | '/artistiksi'
     | '/asetukset'
     | '/kirjaudu'
+    | '/lisaa'
     | '/musiikki'
     | '/osallistu'
     | '/sahkopostit'
     | '/tiedotteet'
     | '/tilastot'
+    | '/wiki'
     | '/api/agent'
     | '/artistit/$artist'
     | '/kilpailut/$year'
@@ -238,11 +262,13 @@ export interface RootRouteChildren {
   ArtistiksiRoute: typeof ArtistiksiRoute
   AsetuksetRoute: typeof AsetuksetRoute
   KirjauduRoute: typeof KirjauduRoute
+  LisaaRoute: typeof LisaaRoute
   MusiikkiRoute: typeof MusiikkiRoute
   OsallistuRoute: typeof OsallistuRoute
   SahkopostitRoute: typeof SahkopostitRoute
   TiedotteetRoute: typeof TiedotteetRoute
   TilastotRoute: typeof TilastotRoute
+  WikiRoute: typeof WikiRoute
   ApiAgentRoute: typeof ApiAgentRoute
   ArtistitArtistRoute: typeof ArtistitArtistRoute
   KilpailutYearRoute: typeof KilpailutYearRoute
@@ -295,6 +321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KirjauduRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lisaa': {
+      id: '/lisaa'
+      path: '/lisaa'
+      fullPath: '/lisaa'
+      preLoaderRoute: typeof LisaaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/musiikki': {
       id: '/musiikki'
       path: '/musiikki'
@@ -328,6 +361,13 @@ declare module '@tanstack/react-router' {
       path: '/tilastot'
       fullPath: '/tilastot'
       preLoaderRoute: typeof TilastotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wiki': {
+      id: '/wiki'
+      path: '/wiki'
+      fullPath: '/wiki'
+      preLoaderRoute: typeof WikiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/agent': {
@@ -382,11 +422,13 @@ const rootRouteChildren: RootRouteChildren = {
   ArtistiksiRoute: ArtistiksiRoute,
   AsetuksetRoute: AsetuksetRoute,
   KirjauduRoute: KirjauduRoute,
+  LisaaRoute: LisaaRoute,
   MusiikkiRoute: MusiikkiRoute,
   OsallistuRoute: OsallistuRoute,
   SahkopostitRoute: SahkopostitRoute,
   TiedotteetRoute: TiedotteetRoute,
   TilastotRoute: TilastotRoute,
+  WikiRoute: WikiRoute,
   ApiAgentRoute: ApiAgentRoute,
   ArtistitArtistRoute: ArtistitArtistRoute,
   KilpailutYearRoute: KilpailutYearRoute,
