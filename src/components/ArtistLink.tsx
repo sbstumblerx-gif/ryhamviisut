@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export function artistKey(name: string) {
-  return name.trim().toLocaleLowerCase("fi-FI").replace(/\\s+/g, "-");
+  return name.trim().toLocaleLowerCase("fi-FI").replace(/\s+/g, "-");
 }
 
 function useArtistImages() {
