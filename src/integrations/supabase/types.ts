@@ -68,12 +68,6 @@ export type Database = {
         }
         Relationships: []
       }
-      wiki_articles: {
-        Row: { id: string; title: string; content: Json; created_by: string; created_at: string; updated_at: string }
-        Insert: { id?: string; title: string; content?: Json; created_by: string; created_at?: string; updated_at?: string }
-        Update: { id?: string; title?: string; content?: Json; created_by?: string; created_at?: string; updated_at?: string }
-        Relationships: []
-      }
       artist_claims: {
         Row: {
           artist_name: string
@@ -113,22 +107,22 @@ export type Database = {
       artist_profiles: {
         Row: {
           banner_path: string | null
-          image_path: string | null
           description: string | null
+          image_path: string | null
           slug: string
           updated_at: string
         }
         Insert: {
           banner_path?: string | null
-          image_path?: string | null
           description?: string | null
+          image_path?: string | null
           slug: string
           updated_at?: string
         }
         Update: {
           banner_path?: string | null
-          image_path?: string | null
           description?: string | null
+          image_path?: string | null
           slug?: string
           updated_at?: string
         }
@@ -347,6 +341,33 @@ export type Database = {
           },
         ]
       }
+      person_links: {
+        Row: {
+          created_at: string
+          entity_key: string
+          entity_name: string
+          entity_type: string
+          id: string
+          person_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_key: string
+          entity_name: string
+          entity_type: string
+          id?: string
+          person_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_key?: string
+          entity_name?: string
+          entity_type?: string
+          id?: string
+          person_id?: string
+        }
+        Relationships: []
+      }
       sections: {
         Row: {
           competition_id: string
@@ -394,6 +415,33 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      wiki_articles: {
+        Row: {
+          content: Json
+          created_at: string
+          created_by: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          created_by: string
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          created_by?: string
+          id?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
