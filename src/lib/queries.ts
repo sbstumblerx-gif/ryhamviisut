@@ -109,14 +109,14 @@ export const artistDetailQuery = (artistSlug: string) =>
       const linkedAliases = target ? (links ?? []).filter((link) => link.person_id === target.person_id).map((link) => link.entity_name) : [];\n      const aliases = [...new Set([...linkedAliases, ...appearances.map((entry) => entry.artist)].filter((entry) => entry !== name))];
       const { data: profile } = await supabase
         .from("artist_profiles")
-        .select("description, banner_path")
+        .select("description, banner_path, image_path")
         .eq("slug", artistSlug)
         .maybeSingle();
       return {
         name,
         appearances,
         description: profile?.description ?? null,
-        bannerPath: profile?.banner_path ?? null,
+        bannerPath: profile?.banner_path ?? null,\n        imagePath: profile?.image_path ?? null,\n        imageUrl: profile?.image_path ? supabase.storage.from("artist-images").getPublicUrl(profile.image_path).data.publicUrl : null,
         bannerUrl: profile?.banner_path ? supabase.storage.from("artist-banners").getPublicUrl(profile.banner_path).data.publicUrl : null,
       };
     },
