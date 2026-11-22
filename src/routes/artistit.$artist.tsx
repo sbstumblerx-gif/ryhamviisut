@@ -11,7 +11,8 @@ import { playMusicTrack } from "@/components/MusicPlayer";
 import { useAdmin, youtubeEmbed } from "@/lib/admin";
 import { getMyArtistStatus } from "@/lib/artist-claims.functions";
 import { saveArtistProfile } from "@/lib/artist-profile.functions";
-import { ArtistBannerEditor } from "@/components/ArtistBannerEditor";\nimport { ArtistImageEditor } from "@/components/ArtistImageEditor";
+import { ArtistBannerEditor } from "@/components/ArtistBannerEditor";
+import { ArtistImageEditor } from "@/components/ArtistImageEditor";
 
 export const Route = createFileRoute("/artistit/$artist")({
   head: ({ params }) => ({
@@ -109,7 +110,10 @@ function ArtistPage() {
   }).length;
 
   return (
-    <PageShell title={data.name} back="/artistit">\n      {!!data.aliases?.length && <p className="-mt-4 mb-6 text-sm text-muted-foreground">{data.aliases.length === 1 ? "Alias" : "Aliakset"}: {data.aliases.join(", ")}</p>}
+    <PageShell title={data.name} back="/artistit">
+      {data.imageUrl && <div className="-mt-3 mb-5"><img src={data.imageUrl} alt={`${data.name} artistikuva`} className="h-28 w-28 rounded-full border object-cover shadow-sm" /></div>}
+      {isSignedIn && <ArtistImageEditor slug={artist} currentImage={data.imageUrl} onUploaded={async (path) => { await saveArtistProfile({ data: { slug: artist, description: data.description, bannerPath: data.bannerPath, imagePath: path } }); await queryClient.invalidateQueries({ queryKey: ["artist-detail", artist] }); await queryClient.invalidateQueries({ queryKey: ["artist-profile-images"] }); }} disabled={!isAdmin && !isArtistOwner} />}
+      {!!data.aliases?.length && <p className="-mt-4 mb-6 text-sm text-muted-foreground">{data.aliases.length === 1 ? "Alias" : "Aliakset"}: {data.aliases.join(", ")}</p>}
       {data.bannerUrl && (
         <div className="mb-8 overflow-hidden rounded-xl border">
           <img src={data.bannerUrl} alt={`${data.name} banner`} className="block aspect-[2560/423] w-full object-cover" />
