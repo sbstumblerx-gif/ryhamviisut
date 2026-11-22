@@ -11,7 +11,7 @@ import { playMusicTrack } from "@/components/MusicPlayer";
 import { useAdmin, youtubeEmbed } from "@/lib/admin";
 import { getMyArtistStatus } from "@/lib/artist-claims.functions";
 import { saveArtistProfile } from "@/lib/artist-profile.functions";
-import { ArtistBannerEditor } from "@/components/ArtistBannerEditor";
+import { ArtistBannerEditor } from "@/components/ArtistBannerEditor";\nimport { ArtistImageEditor } from "@/components/ArtistImageEditor";
 
 export const Route = createFileRoute("/artistit/$artist")({
   head: ({ params }) => ({
@@ -46,7 +46,7 @@ function ArtistPage() {
       if (isAdmin) {
         await run({ type: "setArtistDescription", slug: artist, description: draft.trim() || null });
       } else {
-        await saveArtistProfile({ data: { slug: artist, description: draft.trim() || null, bannerPath: data.bannerPath } });
+        await saveArtistProfile({ data: { slug: artist, description: draft.trim() || null, bannerPath: data.bannerPath, imagePath: data.imagePath } });
         await queryClient.invalidateQueries({ queryKey: ["artist-detail", artist] });
       }
       setEditing(false);
@@ -59,7 +59,7 @@ function ArtistPage() {
   }
 
   async function saveBanner(path: string) {
-    await saveArtistProfile({ data: { slug: artist, description: data.description, bannerPath: path } });
+    await saveArtistProfile({ data: { slug: artist, description: data.description, bannerPath: path, imagePath: data.imagePath } });
     await queryClient.invalidateQueries({ queryKey: ["artist-detail", artist] });
   }
 
